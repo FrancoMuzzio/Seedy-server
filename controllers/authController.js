@@ -31,3 +31,22 @@ exports.register = async (req, res) => {
       res.status(401).send('Not authorized');
     }
   };
+
+  exports.checkUsername = async (req, res) => {
+    const user = await User.findOne({ where: { username: req.body.username } });
+    if (user) {
+      res.status(409).json({message: 'Username already exists'});
+    } else {
+      res.json({message: 'Username is available'});
+    }
+  };
+  
+  exports.checkEmail = async (req, res) => {
+    const user = await User.findOne({ where: { email: req.body.email } });
+    if (user) {
+      res.status(409).json({message: 'Email already exists'});
+    } else {
+      res.json({message: 'Email is available'});
+    }
+  };
+  
