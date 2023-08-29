@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const transporter = require('./emailController');
 
 exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -49,4 +50,25 @@ exports.register = async (req, res) => {
       res.json({message: 'Email is available'});
     }
   };
+
+  exports.sendTestEmail = (req, res) => {
+    let mailOptions = {
+        from: 'Seedy.dev@gmail.com',
+        to: 'muzzio.franco.agustin@gmail.com',
+        subject: 'Correo de Prueba',
+        text: '¡Hola! Este es un correo de prueba desde Seedy-server.',
+        html: '<b>¡Hola! Este es un correo de prueba desde Seedy-server.</b>'
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Error al enviar el correo:', error);
+            return res.status(500).send({ message: 'Error al enviar el correo de prueba.' });
+        } else {
+            console.log('Correo de prueba enviado:', info.response);
+            return res.status(200).send({ message: 'Correo de prueba enviado exitosamente.' });
+        }
+    });
+};
+
   
