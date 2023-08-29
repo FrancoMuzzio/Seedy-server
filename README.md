@@ -1,3 +1,4 @@
 # Seedy-server
-React express
-Nodemailer (emails)
+
+**React express**
+**Nodemailer** (emails)
