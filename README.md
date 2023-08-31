@@ -4,4 +4,4 @@
 
 **Nodemailer** (emails)
 
-**jsonwebtoken crypto** (JWT Token para olvide mi contraseña)
+**jsonwebtoken** (JWT Tokens)
