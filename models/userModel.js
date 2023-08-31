@@ -8,6 +8,8 @@ User.init({
   username: DataTypes.STRING,
   email: DataTypes.STRING,
   password: DataTypes.STRING,
+  resetPasswordToken: DataTypes.STRING,
+  resetPasswordExpires: DataTypes.DATE
 }, {
   sequelize,
   modelName: 'User'
