@@ -3,19 +3,19 @@ const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   const Post = sequelize.define('Post', {
     title: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false
     },
     content: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     date: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false
     },
     user_id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       references: {
         model: 'Users', 
         key: 'id' 
@@ -24,7 +24,7 @@ module.exports = (sequelize) => {
       onDelete: 'SET NULL'
     },
     category_id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       references: {
         model: 'Categories', 
         key: 'id' 

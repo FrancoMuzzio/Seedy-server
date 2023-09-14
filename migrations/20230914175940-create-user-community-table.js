@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('UserCommunity', {
+    await queryInterface.createTable('User_Community', {
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -36,17 +36,27 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
     });
 
     // Agregar clave primaria compuesta
-    await queryInterface.addConstraint('UserCommunity', {
+    await queryInterface.addConstraint('User_Community', {
       fields: ['user_id', 'community_id'],
       type: 'primary key'
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('UserCommunity');
+    await queryInterface.dropTable('User_Community');
   }
 };

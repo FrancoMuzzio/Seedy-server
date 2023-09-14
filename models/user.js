@@ -25,7 +25,7 @@ module.exports = (sequelize) => {
   // Si tienes métodos asociados o relaciones, los defines aquí.
   User.associate = (models) => {
     User.belongsToMany(models.Community, {
-      through: 'UserCommunity',
+      through: 'User_Community',
       foreignKey: 'user_id',
       as: 'communities'
     });

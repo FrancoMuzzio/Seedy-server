@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
   const Role = sequelize.define('Role', {
     // Aquí irán las definiciones de tus columnas, por ejemplo:
     name: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false
     }
   });
