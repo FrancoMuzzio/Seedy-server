@@ -2,30 +2,29 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('categories', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true
       },
-      username: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      email: {
+      description: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      resetPasswordToken: {
-        type: Sequelize.STRING
-      },
-      resetPasswordExpires: {
-        type: Sequelize.DATE
+      community_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Communities', // nombre de la tabla de referencia
+          key: 'id' // campo de la tabla de referencia
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       createdAt: {
         allowNull: false,
@@ -41,6 +40,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('categories');
   }
 };
