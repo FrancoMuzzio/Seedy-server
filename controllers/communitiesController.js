@@ -6,6 +6,6 @@ exports.communities = async (req, res) => {
         res.status(200).send(communities);
     } catch (error) {
         console.error("Error fetching communnities:", error);
-        res.status(500).send({ message: "Error fetching communnities" });
+        res.status(500).send({ message: "Error fetching communities" });
     }
 }
