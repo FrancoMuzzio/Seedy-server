@@ -18,8 +18,16 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const user = await User.findOne({ where: { username: req.body.username } });
   if (user && (await bcrypt.compare(req.body.password, user.password))) {
-    const token = jwt.sign({ username: user.username }, "secret-key");
-    res.send(token);
+    const response = {
+      token: jwt.sign({ username: user.username }, "secret-key"),
+      userInfo: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        picture: user.picture
+      }
+    };
+    res.send(response);
   } else {
     res.status(401).send("Invalid credentials");
   }
