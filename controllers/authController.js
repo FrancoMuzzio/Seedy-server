@@ -34,10 +34,10 @@ exports.login = async (req, res) => {
 };
 
 exports.checkUsername = async (req, res) => {
-  const { username, ignore_username_id } = req.body;
+  const { username, ignore_user_id } = req.body;
   let whereConditions = { username };
-  if (ignore_username_id) {
-    whereConditions.id = { [Op.ne]: ignore_username_id };
+  if (ignore_user_id) {
+    whereConditions.id = { [Op.ne]: ignore_user_id };
   }
   const user = await User.findOne({ where: whereConditions });
   if (user) {
@@ -48,7 +48,12 @@ exports.checkUsername = async (req, res) => {
 };
 
 exports.checkEmail = async (req, res) => {
-  const user = await User.findOne({ where: { email: req.body.email } });
+  const { email, ignore_user_id } = req.body;
+  let whereConditions = { email };
+  if (ignore_user_id) {
+    whereConditions.id = { [Op.ne]: ignore_user_id };
+  }
+  const user = await User.findOne({ where: whereConditions });
   if (user) {
     res.status(409).json({ message: "Email already exists" });
   } else {
