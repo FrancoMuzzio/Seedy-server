@@ -1,5 +1,7 @@
 const express = require('express');
 const authRoutes = require('./routes/authRoutes');
+const communitiesRoutes = require('./routes/communitiesRoutes');
+const userRoutes = require('./routes/userRoutes');
 const sequelize = require('./database');
 
 const app = express();
@@ -10,6 +12,8 @@ app.use(express.json());
 
 // Rutas
 app.use('/', authRoutes);
+app.use('/', userRoutes);
+app.use('/', communitiesRoutes);
 
 // Sincronización con la base de datos
 sequelize.sync();
