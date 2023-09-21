@@ -4,7 +4,6 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const User = sequelize.define('User', {
-    // Aquí irán las definiciones de tus columnas, por ejemplo:
     username: {
       type: DataTypes.STRING,
       allowNull: false
@@ -22,7 +21,6 @@ module.exports = (sequelize) => {
     resetPasswordExpires: DataTypes.DATE
   });
 
-  // Si tienes métodos asociados o relaciones, los defines aquí.
   User.associate = (models) => {
     User.belongsToMany(models.Community, {
       through: 'User_Community',

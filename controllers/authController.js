@@ -33,15 +33,6 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.protected = (req, res) => {
-  try {
-    const token = req.headers.authorization.split(" ")[1];
-    const payload = jwt.verify(token, "secret-key");
-    res.send(`Hello ${payload.username}`);
-  } catch {
-    res.status(401).send("Not authorized");
-  }
-};
 
 exports.checkUsername = async (req, res) => {
   const user = await User.findOne({ where: { username: req.body.username } });
@@ -59,37 +50,6 @@ exports.checkEmail = async (req, res) => {
   } else {
     res.json({ message: "Email is available" });
   }
-};
-
-exports.sendTestEmail = (req, res) => {
-  let mailOptions = {
-    from: supportEmail,
-    to: user.email,
-    subject: "Restablecimiento de Contraseña",
-    text: `Hola, 
-           Recibimos una solicitud para restablecer tu contraseña. 
-           Por favor, usa el siguiente token para restablecerla: ${resetToken}
-           Si no hiciste esta solicitud, ignora este correo.`,
-    html: `<b>Hola,</b> 
-              <p>Recibimos una solicitud para restablecer tu contraseña.</p>
-              <p>Por favor, usa el siguiente token para restablecerla: <strong>${resetToken}</strong></p>
-              <p>Si no hiciste esta solicitud, ignora este correo.</p>`,
-  };
-
-  // Enviar correo
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log("Error al enviar el correo:", error);
-      return res
-        .status(500)
-        .send({ message: "Error al enviar el correo de restablecimiento." });
-    } else {
-      console.log("Correo enviado:", info.response);
-      return res.json({
-        message: "Correo enviado con instrucciones para restablecer contraseña",
-      });
-    }
-  });
 };
 
 exports.forgotPassword = async (req, res) => {
