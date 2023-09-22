@@ -1,0 +1,26 @@
+{
+  "database": {
+    "development": {
+      "username": "root",
+      "password": null,
+      "database": "seedy_development",
+      "host": "127.0.0.1",
+      "dialect": "mysql"
+    },
+    "test": {
+      "username": "root",
+      "password": null,
+      "database": "seedy_test",
+      "host": "127.0.0.1",
+      "dialect": "mysql"
+    },
+    "production": {
+      "username": "root",
+      "password": null,
+      "database": "seedy_production",
+      "host": "127.0.0.1",
+      "dialect": "mysql"
+    }
+  },
+  "jwtSecret": "a7b3c9e1f4d2e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0"
+}

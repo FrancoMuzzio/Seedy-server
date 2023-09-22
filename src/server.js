@@ -2,7 +2,8 @@ const express = require('express');
 const authRoutes = require('./routes/authRoutes');
 const communitiesRoutes = require('./routes/communitiesRoutes');
 const userRoutes = require('./routes/userRoutes');
-const sequelize = require('./database');
+const imageRoutes = require('./routes/imageRoutes');
+const sequelize = require('./config/database');
 
 const app = express();
 
@@ -14,6 +15,8 @@ app.use(express.json());
 app.use('/', authRoutes);
 app.use('/', userRoutes);
 app.use('/', communitiesRoutes);
+app.use('/', imageRoutes);
+app.use('/uploads', express.static('uploads'));
 
 // Sincronización con la base de datos
 sequelize.sync();
