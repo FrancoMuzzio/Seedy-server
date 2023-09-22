@@ -2,6 +2,10 @@
 
 **React express**
 
-**Nodemailer** (emails)
+**Nodemailer** (Envio de emails)
 
 **jsonwebtoken** (JWT Tokens)
+
+**multer** (Carga de archivos)
+
+**sharp** (Procesamiento de imágenes de alto rendimiento)
