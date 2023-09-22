@@ -4,12 +4,14 @@ const communitiesRoutes = require('./routes/communitiesRoutes');
 const userRoutes = require('./routes/userRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const sequelize = require('./config/database');
+const bodyParser = require('body-parser');
 
 const app = express();
 
 var cors = require('cors');
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Rutas
 app.use('/', authRoutes);
