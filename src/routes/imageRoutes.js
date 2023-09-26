@@ -1,5 +1,6 @@
 const express = require('express');
 const upload = require('../utils/imageUpload');
+const imageController = require('../controllers/imageController');
 
 const router = express.Router();
 
@@ -11,5 +12,6 @@ router.post('/upload/:folderName', upload.single('image'), (req, res) => {
     imageUrl: `/uploads/${req.params.folderName}/${req.file.originalname}`
   });
 });
+
 
 module.exports = router;
