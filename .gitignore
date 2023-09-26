@@ -1,2 +1,6 @@
+# Ignorar todas las carpetas en 'uploads'
+uploads/*
+# Pero no ignorar 'uploads/default'
+!uploads/default/
+
 config/config.js
-uploads/
