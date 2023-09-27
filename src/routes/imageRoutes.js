@@ -9,7 +9,7 @@ router.post('/upload/:folderName', upload.single('image'), (req, res) => {
     return res.status(400).send('No image uploaded');
   }
   res.status(200).send({
-    imageUrl: `/uploads/${req.params.folderName}/${req.file.originalname}`
+    imageUrl: `/uploads/${decodeURI(req.params.folderName)}/${req.file.originalname}`
   });
 });
 

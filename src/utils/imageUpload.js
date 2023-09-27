@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const folderName = req.params.folderName || 'default'; // Si folderName es undefined, usará 'default'
+    const folderName = decodeURI(req.params.folderName) || 'default'; // Si folderName es undefined, usará 'default'
 
     const uploadPath = path.join('uploads', folderName);
 
