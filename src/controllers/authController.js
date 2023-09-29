@@ -5,7 +5,6 @@ const config = require('../config/config.json');
 const { User } = require("../models");
 const { transporter, supportEmail } = require("./emailController");
 const { Op } = require('sequelize');
-const imageController = require('./imageController');
 
 exports.register = async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
