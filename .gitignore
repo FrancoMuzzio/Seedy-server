@@ -4,3 +4,5 @@ uploads/*
 !uploads/default/
 
 config/config.js
+
+node_modules/
