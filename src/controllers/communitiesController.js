@@ -60,14 +60,49 @@ exports.create = async (req, res) => {
   }
 };
 
+exports.delete = async (req, res) => {
+  try {
+    // Verificar si el community_id está presente en el cuerpo de la solicitud
+    if (!req.body.community_id) {
+      return res.status(400).json({
+        message: "Parameters missing: community_id not present",
+      });
+    }
+
+    // Buscar y eliminar la comunidad
+    const result = await Community.destroy({
+      where: {
+        id: req.body.community_id,
+      },
+    });
+
+    // Verificar si la comunidad se eliminó correctamente
+    if (result === 0) {
+      return res.status(404).json({
+        message: "Community not found",
+      });
+    }
+
+    res.json({
+      message: "Community deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting community:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
 
 exports.give_user_community_role = async (req, res) => {
   try {
-    const { user_id, community_id, role_name } = req.body;
-
-    if (!user_id || !community_id || !role_name) {
+    const { user_id, role_name } = req.body;
+    const { community_id } = req.params;
+    if (!user_id || !role_name) {
       return res.status(400).json({
-        message: "Parameters missing: user_id, community_id, or role_name not present",
+        message: "Parameters missing: user_id, or role_name not present",
       });
     }
 
