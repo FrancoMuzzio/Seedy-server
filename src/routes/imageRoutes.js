@@ -4,14 +4,16 @@ const imageController = require('../controllers/imageController');
 
 const router = express.Router();
 
-router.post('/upload/:folderName', upload.single('image'), (req, res) => {
+router.post('/image/upload/:folderName', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No image uploaded');
   }
   res.status(200).send({
-    imageUrl: `/uploads/${req.params.folderName}/${req.file.originalname}`
+    imageUrl: `/uploads/${decodeURI(req.params.folderName)}/${req.file.originalname}`
   });
 });
+
+router.post('/image/random-filepath', imageController.getRandomDefaultFilepath);
 
 
 module.exports = router;

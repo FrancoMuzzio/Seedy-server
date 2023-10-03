@@ -5,15 +5,14 @@ const config = require('../config/config.json');
 const { User } = require("../models");
 const { transporter, supportEmail } = require("./emailController");
 const { Op } = require('sequelize');
-const imageController = require('./imageController');
 
 exports.register = async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  const random_profile_picture = await imageController.get_random_default_filepath('profile_picture');
+  console.log(req.body);
   const user = await User.create({
     username: req.body.username,
     email: req.body.email,
-    picture: random_profile_picture,
+    picture: req.body.picture,
     password: hashedPassword,
   });
   res.send("User registered successfully");

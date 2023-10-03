@@ -1,4 +1,6 @@
 const { DataTypes } = require('sequelize');
+const { UserCommunity } = require("./user_community");
+
 
 module.exports = (sequelize) => {
   const Community = sequelize.define('Community', {
@@ -19,7 +21,7 @@ module.exports = (sequelize) => {
   // Si tienes métodos asociados o relaciones, los defines aquí.
   Community.associate = (models) => {
     Community.belongsToMany(models.User, {
-      through: 'User_Community',
+      through: models.UserCommunity,
       foreignKey: 'community_id',
       as: 'users'
     });
