@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
-const config = require('./config.json');
+const database = require('./database.json');
 const env = process.env.NODE_ENV || 'development';
-const dbConfig = config.database[env];
+const dbConfig = database[env];
 
 // Conexión a la base de datos
 const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {

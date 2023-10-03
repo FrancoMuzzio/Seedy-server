@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
 
   User.associate = (models) => {
     User.belongsToMany(models.Community, {
-      through: 'User_Community',
+      through: models.UserCommunity,
       foreignKey: 'user_id',
       as: 'communities'
     });
