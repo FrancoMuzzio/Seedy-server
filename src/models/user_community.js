@@ -38,6 +38,13 @@ module.exports = (sequelize) => {
       }
     ]
   });
+  
+  UserCommunity.associate = (models) => {
+    UserCommunity.belongsTo(models.Role, {
+      foreignKey: 'role_id',
+      as: 'role'
+    });
+  };
 
   return UserCommunity;
 };

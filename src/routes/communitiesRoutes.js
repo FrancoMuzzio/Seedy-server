@@ -11,8 +11,10 @@ router.post('/communities/create', authenticateJWT, communitiesController.create
 
 router.delete('/communities/delete', authenticateJWT, communitiesController.delete);
 
-router.post('/communities/:communityId/change-image', authenticateJWT, communitiesController.changeImage);
+router.post('/communities/:community_id/change-image', authenticateJWT, communitiesController.changeImage);
 
-router.post('/communities/:communityId/give-role-to-user', authenticateJWT, communitiesController.give_user_community_role);
+router.post('/communities/:community_id/give-role-to-user', authenticateJWT, communitiesController.giveUserCommunityRole);
+
+router.get('/communities/:community_id/members', communitiesController.getMembers);
 
 module.exports = router;

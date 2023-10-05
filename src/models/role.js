@@ -9,6 +9,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    display_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   });
 
   // Si tienes métodos asociados o relaciones, los defines aquí.
