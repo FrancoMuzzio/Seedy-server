@@ -1,4 +1,4 @@
-const { Community, UserCommunity, Role, Op } = require("../models");
+const { Community, UserCommunity, Role, User, Op } = require("../models");
 
 exports.list = async (req, res) => {
   try {
@@ -38,9 +38,15 @@ exports.checkName = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    if (!req.body.name || !req.body.description || !req.body.picture || !req.body.user_id) {
+    if (
+      !req.body.name ||
+      !req.body.description ||
+      !req.body.picture ||
+      !req.body.user_id
+    ) {
       return res.status(400).json({
-        message: "Parameters missing: name, description, picture or user_id not present",
+        message:
+          "Parameters missing: name, description, picture or user_id not present",
       });
     }
     const community = await Community.create({
@@ -60,20 +66,53 @@ exports.create = async (req, res) => {
   }
 };
 
-
-exports.give_user_community_role = async (req, res) => {
+exports.delete = async (req, res) => {
   try {
-    const { user_id, community_id, role_name } = req.body;
-
-    if (!user_id || !community_id || !role_name) {
+    // Verificar si el community_id está presente en el cuerpo de la solicitud
+    if (!req.body.community_id) {
       return res.status(400).json({
-        message: "Parameters missing: user_id, community_id, or role_name not present",
+        message: "Parameters missing: community_id not present",
+      });
+    }
+
+    // Buscar y eliminar la comunidad
+    const result = await Community.destroy({
+      where: {
+        id: req.body.community_id,
+      },
+    });
+
+    // Verificar si la comunidad se eliminó correctamente
+    if (result === 0) {
+      return res.status(404).json({
+        message: "Community not found",
+      });
+    }
+
+    res.json({
+      message: "Community deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting community:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.giveUserCommunityRole = async (req, res) => {
+  try {
+    const { user_id, role_name } = req.body;
+    const { community_id } = req.params;
+    if (!user_id || !role_name) {
+      return res.status(400).json({
+        message: "Parameters missing: user_id, or role_name not present",
       });
     }
 
     // Buscar el role_id basado en el role_name
     const role = await Role.findOne({
-      where: { name: role_name }
+      where: { name: role_name },
     });
 
     if (!role) {
@@ -88,8 +127,8 @@ exports.give_user_community_role = async (req, res) => {
     const existingEntry = await UserCommunity.findOne({
       where: {
         user_id,
-        community_id
-      }
+        community_id,
+      },
     });
 
     if (existingEntry) {
@@ -99,7 +138,7 @@ exports.give_user_community_role = async (req, res) => {
       await UserCommunity.create({
         user_id,
         community_id,
-        role_id
+        role_id,
       });
     }
 
@@ -114,8 +153,6 @@ exports.give_user_community_role = async (req, res) => {
   }
 };
 
-
-
 exports.changeImage = async (req, res) => {
   try {
     if (!req.params.userId || !req.body.picture) {
@@ -124,11 +161,11 @@ exports.changeImage = async (req, res) => {
       });
     }
     const community = await Community.findOne({
-      where: { id: req.params.communityId },
+      where: { id: req.params.community_id },
     });
     if (community === null) {
       res.status(404).json({
-        message: `Community not found (id:${req.params.communityId})`,
+        message: `Community not found (id:${req.params.community_id})`,
       });
     } else {
       community.picture = req.body.picture;
@@ -139,6 +176,60 @@ exports.changeImage = async (req, res) => {
     }
   } catch (error) {
     console.error("Error changing community image:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getMembers = async (req, res) => {
+  try {
+    // Primera consulta para obtener los miembros de la comunidad
+    const community = await Community.findOne({
+      where: { id: req.params.community_id },
+      include: [
+        {
+          model: User,
+          as: "users",
+          attributes: ["id", "username", "picture"],
+          through: {
+            attributes: ["role_id"],
+          },
+        },
+      ],
+    });
+
+    if (!community) {
+      return res.status(404).json({
+        message: "Community not found.",
+      });
+    }
+
+    // Segunda consulta para obtener los nombres de los roles
+    const roles = await Role.findAll({
+      attributes: ["id", "name", "display_name"],
+    });
+
+    // Combinar los resultados
+    const membersWithRoles = community.users.map((user) => {
+      const roleId =
+        user.UserCommunity && user.UserCommunity.dataValues
+          ? user.UserCommunity.dataValues.role_id
+          : null;
+      const role = roles.find((r) => r.id === roleId);
+      return {
+        id: user.dataValues.id,
+        username: user.dataValues.username,
+        picture: user.dataValues.picture,
+        role: role ? role.name : None,
+        role_display_name: role ? role.display_name : None,
+      };
+    });
+    res.json({
+      data: membersWithRoles,
+    });
+  } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({
       message: "Internal Server Error",
     });

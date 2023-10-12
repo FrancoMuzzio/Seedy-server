@@ -1,6 +1,7 @@
 const express = require('express');
 const upload = require('../utils/imageUpload');
 const imageController = require('../controllers/imageController');
+const authenticateJWT = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -14,6 +15,5 @@ router.post('/image/upload/:folderName', upload.single('image'), (req, res) => {
 });
 
 router.post('/image/random-filepath', imageController.getRandomDefaultFilepath);
-
 
 module.exports = router;
