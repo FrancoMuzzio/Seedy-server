@@ -225,7 +225,6 @@ exports.getMembers = async (req, res) => {
         role_display_name: role ? role.display_name : None,
       };
     });
-
     res.json({
       data: membersWithRoles,
     });

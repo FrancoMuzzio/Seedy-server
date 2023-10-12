@@ -5,7 +5,7 @@ const authenticateJWT = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.post('/image/upload/:folderName', authenticateJWT, upload.single('image'), (req, res) => {
+router.post('/image/upload/:folderName', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No image uploaded');
   }
@@ -14,6 +14,6 @@ router.post('/image/upload/:folderName', authenticateJWT, upload.single('image')
   });
 });
 
-router.post('/image/random-filepath', authenticateJWT, imageController.getRandomDefaultFilepath);
+router.post('/image/random-filepath', imageController.getRandomDefaultFilepath);
 
 module.exports = router;
