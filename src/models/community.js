@@ -3,7 +3,7 @@ const { UserCommunity } = require("./user_community");
 
 
 module.exports = (sequelize) => {
-  const Community = sequelize.define('Community', {
+  const Community = sequelize.define('community', {
     name: {
       type: DataTypes.STRING,
       allowNull: false
