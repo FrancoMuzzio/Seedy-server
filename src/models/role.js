@@ -3,7 +3,7 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const Role = sequelize.define("role", {
+  const Role = sequelize.define("Role", {
     // Aquí irán las definiciones de tus columnas, por ejemplo:
     name: {
       type: DataTypes.STRING,
@@ -19,7 +19,7 @@ module.exports = (sequelize) => {
   Role.associate = (models) => {
     Role.hasMany(models.UserCommunity, {
       foreignKey: "role_id",
-      as: "usercommunities",
+      as: "userCommunities",
     });
   };
 

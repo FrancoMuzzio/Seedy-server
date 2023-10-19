@@ -3,7 +3,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const UserCommunity = sequelize.define('usercommunity', {
+  const UserCommunity = sequelize.define('UserCommunity', {
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
