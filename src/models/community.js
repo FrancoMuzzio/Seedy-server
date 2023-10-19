@@ -15,7 +15,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING
     }
   }, {
-    tableName: 'Communities' // Esto especifica que el nombre de la tabla en la base de datos será 'Communities'
+    tableName: 'communities' // Esto especifica que el nombre de la tabla en la base de datos será 'Communities'
   });
 
   // Si tienes métodos asociados o relaciones, los defines aquí.
