@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('User_Community', {
+    await queryInterface.createTable('user_community', {
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -50,7 +50,7 @@ module.exports = {
     });
 
     // Agregar clave primaria compuesta
-    await queryInterface.addConstraint('User_Community', {
+    await queryInterface.addConstraint('user_community', {
       fields: ['user_id', 'community_id'],
       type: 'primary key'
     });
