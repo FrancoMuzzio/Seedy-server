@@ -20,7 +20,7 @@ module.exports = {
       community_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'communities', // nombre de la tabla de referencia
+          model: 'Communities', // nombre de la tabla de referencia
           key: 'id' // campo de la tabla de referencia
         },
         onUpdate: 'CASCADE',
