@@ -3,7 +3,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Agregar la columna 'picture' a la tabla 'Users' después de la columna 'password'
-    await queryInterface.addColumn('users', 'picture', {
+    await queryInterface.addColumn('Users', 'picture', {
       type: Sequelize.STRING,
       allowNull: true,
       defaultValue: null,
@@ -13,6 +13,6 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     // Eliminar la columna 'picture' de la tabla 'Users'
-    await queryInterface.removeColumn('users', 'picture');
+    await queryInterface.removeColumn('Users', 'picture');
   }
 };
