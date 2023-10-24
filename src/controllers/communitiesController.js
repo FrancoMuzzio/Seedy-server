@@ -2,10 +2,34 @@ const { Community, UserCommunity, Role, User, Op } = require("../models");
 
 exports.list = async (req, res) => {
   try {
-    const communities = await Community.findAll();
-    res.status(200).json(communities);
+    const communities = await Community.findAll({
+      attributes: ["id", "name", "description", "picture"],
+      include: [
+        {
+          model: User,
+          as: "users",
+          attributes: [],
+          through: {
+            model: UserCommunity,
+            attributes: [],
+          },
+        },
+      ],
+    });
+
+    // contar usuarios de cada comunidad
+    const communitiesWithUserCount = await Promise.all(
+      communities.map(async (community) => {
+        const userCount = await community.countUsers(); // countUsers es un método que Sequelize crea automáticamente
+        return {
+          ...community.get(), // Obtener los datos de la comunidad como un objeto simple
+          userCount, // Añadir la cuenta de usuarios
+        };
+      })
+    );
+    res.status(200).json(communitiesWithUserCount);
   } catch (error) {
-    console.error("Error fetching communnities:", error);
+    console.error("Error fetching communities:", error);
     res.status(500).json({ message: "Error fetching communities" });
   }
 };

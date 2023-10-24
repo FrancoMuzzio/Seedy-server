@@ -8,7 +8,6 @@ const { Op } = require('sequelize');
 
 exports.register = async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  console.log(req.body);
   const user = await User.create({
     username: req.body.username,
     email: req.body.email,
