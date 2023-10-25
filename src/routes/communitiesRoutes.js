@@ -15,6 +15,10 @@ router.post('/communities/:community_id/change-image', authenticateJWT, communit
 
 router.post('/communities/:community_id/give-role-to-user', authenticateJWT, communitiesController.giveUserCommunityRole);
 
+router.post('/communities/:community_id/create-category', authenticateJWT, communitiesController.createCategory);
+
 router.get('/communities/:community_id/members', communitiesController.getMembers);
+
+router.get('/communities/:community_id/categories', communitiesController.getCategories);
 
 module.exports = router;

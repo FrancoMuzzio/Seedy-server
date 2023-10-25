@@ -1,4 +1,11 @@
-const { Community, UserCommunity, Role, User, Op } = require("../models");
+const {
+  Category,
+  Community,
+  UserCommunity,
+  Role,
+  User,
+  Op,
+} = require("../models");
 
 exports.list = async (req, res) => {
   try {
@@ -75,7 +82,7 @@ exports.create = async (req, res) => {
     }
     const community = await Community.create({
       name: req.body.name,
-      description: req.body.description, // Corregido de req.body.email a req.body.description
+      description: req.body.description,
       picture: req.body.picture,
     });
     res.json({
@@ -254,6 +261,55 @@ exports.getMembers = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  const { community_id } = req.params;
+
+  try {
+    const categories = await Category.findAll({
+      where: {
+        community_id,
+      },
+    });
+
+    if (categories.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No categories found for this community." });
+    }
+
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.createCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const { community_id } = req.params;
+    if (!community_id || !name || !description) {
+      return res.status(400).json({
+        message: "Parameters missing: name or community_id not present",
+      });
+    }
+    const category = await Category.create({
+      name: name,
+      description: description,
+      community_id: community_id,
+    });
+    res.json({
+      message: "Category registered successfully",
+      id: category.id,
+    });
+  } catch (error) {
+    console.error("Error creating community category:", error);
     res.status(500).json({
       message: "Internal Server Error",
     });
