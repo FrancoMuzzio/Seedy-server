@@ -1,11 +1,43 @@
-const { Community, UserCommunity, Role, User, Op } = require("../models");
+const {
+  Category,
+  Post,
+  Community,
+  UserCommunity,
+  Role,
+  User,
+  Op,
+} = require("../models");
 
 exports.list = async (req, res) => {
   try {
-    const communities = await Community.findAll();
-    res.status(200).json(communities);
+    const communities = await Community.findAll({
+      attributes: ["id", "name", "description", "picture"],
+      include: [
+        {
+          model: User,
+          as: "users",
+          attributes: [],
+          through: {
+            model: UserCommunity,
+            attributes: [],
+          },
+        },
+      ],
+    });
+
+    // contar usuarios de cada comunidad
+    const communitiesWithUserCount = await Promise.all(
+      communities.map(async (community) => {
+        const userCount = await community.countUsers(); // countUsers es un método que Sequelize crea automáticamente
+        return {
+          ...community.get(), // Obtener los datos de la comunidad como un objeto simple
+          userCount, // Añadir la cuenta de usuarios
+        };
+      })
+    );
+    res.status(200).json(communitiesWithUserCount);
   } catch (error) {
-    console.error("Error fetching communnities:", error);
+    console.error("Error fetching communities:", error);
     res.status(500).json({ message: "Error fetching communities" });
   }
 };
@@ -51,7 +83,7 @@ exports.create = async (req, res) => {
     }
     const community = await Community.create({
       name: req.body.name,
-      description: req.body.description, // Corregido de req.body.email a req.body.description
+      description: req.body.description,
       picture: req.body.picture,
     });
     res.json({
@@ -230,6 +262,123 @@ exports.getMembers = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  const { community_id } = req.params;
+
+  try {
+    const categories = await Category.findAll({
+      where: {
+        community_id,
+      },
+    });
+
+    if (categories.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No categories found for this community." });
+    }
+
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.createCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const { community_id } = req.params;
+    if (!community_id || !name || !description) {
+      return res.status(400).json({
+        message: "Parameters missing: name or community_id not present",
+      });
+    }
+    const category = await Category.create({
+      name: name,
+      description: description,
+      community_id: community_id,
+    });
+    res.json({
+      message: "Category registered successfully",
+      id: category.id,
+    });
+  } catch (error) {
+    console.error("Error creating community category:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getPosts = async (req, res) => {
+  const { category_id, community_id } = req.body;
+
+  try {
+    let posts = [];
+    if (category_id) {
+      // Si se proporciona category_id, obtener los posts de esa categoría
+      posts = await Post.findAll({
+        where: {
+          category_id,
+        },
+        attributes: ["id", "title", "user_id", "category_id", "date"],
+      });
+    } else if (community_id) {
+      // Si se proporciona community_id, obtener los posts de todas las categorías de esa comunidad
+      const categories = await Category.findAll({
+        where: {
+          community_id,
+        },
+      });
+      const categoryIds = categories.map((category) => category.id);
+
+      posts = await Post.findAll({
+        where: {
+          category_id: categoryIds,
+        },
+        attributes: ["id", "title", "user_id", "category_id", "date"],
+      });
+    }
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No posts found." });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.createPost = async (req, res) => {
+  try {
+    const { name, content, user_id } = req.body;
+    const { category_id } = req.params;
+    if (!name || !content || !user_id || !category_id) {
+      return res.status(400).json({
+        message:
+          "Parameters missing: content, user_id, category_id or name not present",
+      });
+    }
+    const post = await Post.create({
+      name,
+      content,
+      user_id,
+      category_id,
+    });
+    res.json({
+      message: "Post registered successfully",
+      id: post.id,
+    });
+  } catch (error) {
+    console.error("Error creating community post:", error);
     res.status(500).json({
       message: "Internal Server Error",
     });
