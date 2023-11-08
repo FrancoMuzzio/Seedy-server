@@ -12,10 +12,6 @@ module.exports = (sequelize) => {
     },
     community_id: {
       type: DataTypes.INTEGER,
-      references: {
-        model: 'communities', // nombre de la tabla de referencia
-        key: 'id' // campo de la tabla de referencia
-      }
     }
   });
 

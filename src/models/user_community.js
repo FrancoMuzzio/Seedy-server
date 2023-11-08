@@ -7,26 +7,14 @@ module.exports = (sequelize) => {
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'users', // nombre de la tabla, no del modelo
-        key: 'id'
-      }
     },
     community_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'communities', // nombre de la tabla, no del modelo
-        key: 'id'
-      }
     },
     role_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'roles', // nombre de la tabla, no del modelo
-        key: 'id'
-      }
     }
   }, {
     tableName: 'User_Community',

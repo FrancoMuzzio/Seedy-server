@@ -27,6 +27,11 @@ module.exports = (sequelize) => {
       foreignKey: 'user_id',
       as: 'communities'
     });
+    User.belongsToMany(models.Plant, {
+      through: models.UserPlant,
+      foreignKey: 'user_id',
+      as: 'plants'
+    });
   };
 
   return User;
