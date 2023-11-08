@@ -1,0 +1,88 @@
+const { Plant, UserPlant } = require("../models");
+
+exports.create = async (req, res) => {
+  try {
+    if (!req.body.scientific_name || !req.body.family || !req.body.images) {
+      return res.status(400).json({
+        message:
+          "Parameters missing: scientific_name, family or images not present",
+      });
+    }
+    const plant = await Plant.create({
+      scientific_name: req.body.scientific_name,
+      family: req.body.family,
+      images: req.body.images,
+      ...(req.body.common_names && { common_names: req.body.common_names }),
+    });
+    res.json({
+      message: "Plant registered successfully",
+      id: plant.id,
+    });
+  } catch (error) {
+    console.error("Error creating plant:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    if (!req.body.scientific_name || !req.body.family || !req.body.images) {
+      return res.status(400).json({
+        message:
+          "Parameters missing: scientific_name, family or images not present",
+      });
+    }
+    const plant = await Plant.create({
+      scientific_name: req.body.scientific_name,
+      family: req.body.family,
+      images: req.body.images,
+      ...(req.body.common_names && { common_names: req.body.common_names }),
+    });
+    res.json({
+      message: "Plant registered successfully",
+      id: plant.id,
+    });
+  } catch (error) {
+    console.error("Error creating plant:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.associate = async (req, res) => {
+  try {
+    if (!req.body.plant_id) {
+      return res.status(400).json({
+        message: "Parameters missing: plant_id not present",
+      });
+    }
+
+    // Encuentra o crea la asociación en la tabla pivote UserPlant
+    const [userPlantAssociation, created] = await UserPlant.findOrCreate({
+      where: { user_id: req.user.id, plant_id: req.body.plant_id },
+    });
+
+    if (created) {
+      return res.status(201).json({
+        message: "Plant associated successfully",
+        association: userPlantAssociation,
+      });
+    } else {
+      return res.status(200).json({
+        message: "The association already existed",
+        association: userPlantAssociation,
+      });
+    }
+  } catch (error) {
+    console.error(
+      "An error occurred while associating the user with the plant:",
+      error
+    );
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
