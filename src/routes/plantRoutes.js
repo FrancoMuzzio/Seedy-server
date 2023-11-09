@@ -6,5 +6,6 @@ const authenticateJWT = require("../middlewares/authMiddleware");
 router.post("/plant/firstOrCreate", authenticateJWT, plantsController.firstOrCreate);
 router.post("/plant/associate", authenticateJWT, plantsController.associate);
 router.get('/plant/:plantId/isAssociated', authenticateJWT, plantController.isPlantAssociatedWithUser);
+router.get('/plant/name/:scientificName', authenticateJWT, plantController.getPlantIdByName);
 
 module.exports = router;

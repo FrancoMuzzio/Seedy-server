@@ -125,3 +125,25 @@ exports.isPlantAssociatedWithUser = async (req, res) => {
   }
 };
 
+exports.getPlantIdByName = async (req, res) => {
+  try {
+    const scientificName = req.params.scientificName;
+
+    const plant = await Plant.findOne({
+      where: {
+        scientific_name: scientificName,
+      },
+    });
+
+    if (plant) {
+      return res.status(200).json({ id: plant.id });
+    } else {
+      return res.status(404).json({ message: "Plant not found" });
+    }
+  } catch (error) {
+    console.error("Error finding plant by name:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
