@@ -34,6 +34,15 @@ exports.create = async (req, res) => {
           "Parameters missing: scientific_name, family or images not present",
       });
     }
+
+    const existingPlant = await Plant.findOne({ scientific_name: req.body.scientific_name });
+
+    if (existingPlant) {
+      return res.status(409).json({
+        message: "A plant with the given scientific name already exists",
+      });
+    }
+
     const plant = await Plant.create({
       scientific_name: req.body.scientific_name,
       family: req.body.family,
