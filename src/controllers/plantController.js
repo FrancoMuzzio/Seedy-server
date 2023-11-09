@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+exports.firstOrCreate = async (req, res) => {
   try {
     if (!req.body.scientific_name || !req.body.family || !req.body.images) {
       return res.status(400).json({
@@ -38,8 +38,9 @@ exports.create = async (req, res) => {
     const existingPlant = await Plant.findOne({ scientific_name: req.body.scientific_name });
 
     if (existingPlant) {
-      return res.status(409).json({
+      return res.status(200).json({
         message: "A plant with the given scientific name already exists",
+        id: existingPlant.id,
       });
     }
 
