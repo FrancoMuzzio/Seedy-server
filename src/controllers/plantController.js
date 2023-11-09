@@ -1,4 +1,4 @@
-const { Plant, UserPlant } = require("../models");
+const { User, Plant, UserPlant } = require("../models");
 
 exports.create = async (req, res) => {
   try {
@@ -145,5 +145,28 @@ exports.getPlantIdByName = async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+exports.getUserPlants = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const userWithPlants = await User.findByPk(userId, {
+      include: [{
+        model: Plant,
+        as: 'plants',
+        through: { attributes: [] }
+      }]
+    });
+
+    if (!userWithPlants) {
+      return res.status(404).send({ message: 'User not found.' });
+    }
+
+    return res.status(200).send(userWithPlants.plants);
+  } catch (error) {
+    console.error('Error fetching users plants:', error);
+    return res.status(500).send({ message: 'Error processing request.' });
   }
 };

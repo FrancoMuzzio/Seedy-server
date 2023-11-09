@@ -7,5 +7,6 @@ router.post("/plant/firstOrCreate", authenticateJWT, plantsController.firstOrCre
 router.post("/plant/associate", authenticateJWT, plantsController.associate);
 router.get('/plant/:plantId/isAssociated', authenticateJWT, plantsController.isPlantAssociatedWithUser);
 router.get('/plant/name/:scientificName', authenticateJWT, plantsController.getPlantIdByName);
+router.get('/plant/getUserPlants', authenticateJWT, plantsController.getUserPlants);
 
 module.exports = router;
