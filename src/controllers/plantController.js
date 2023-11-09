@@ -99,3 +99,29 @@ exports.associate = async (req, res) => {
     });
   }
 };
+
+exports.isPlantAssociatedWithUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const plantId = req.params.plantId;
+
+    const association = await UserPlant.findOne({
+      where: {
+        userId: userId,
+        plantId: plantId,
+      },
+    });
+
+    if (association) {
+      return res.status(200).json({ associated: true });
+    } else {
+      return res.status(200).json({ associated: false });
+    }
+  } catch (error) {
+    console.error("Error checking plant association:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
