@@ -107,8 +107,8 @@ exports.isPlantAssociatedWithUser = async (req, res) => {
 
     const association = await UserPlant.findOne({
       where: {
-        userId: userId,
-        plantId: plantId,
+        user_id: userId,
+        plant_id: plantId,
       },
     });
 
