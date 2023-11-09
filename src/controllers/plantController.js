@@ -35,7 +35,7 @@ exports.firstOrCreate = async (req, res) => {
       });
     }
 
-    const existingPlant = await Plant.findOne({ scientific_name: req.body.scientific_name });
+    const existingPlant = await Plant.findOne({ where: { scientific_name: req.body.scientific_name }});
 
     if (existingPlant) {
       return res.status(200).json({
