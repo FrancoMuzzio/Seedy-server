@@ -98,32 +98,46 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+exports.deleteCommunity = async (req, res) => {
   try {
-    // Verificar si el community_id está presente en el cuerpo de la solicitud
-    if (!req.body.community_id) {
+    const communityId = req.params.communityId;
+
+    if (!communityId) {
       return res.status(400).json({
-        message: "Parameters missing: community_id not present",
+        message:
+          "Parameters missing: communityId not present",
       });
     }
+    const userId = req.user.id;
 
-    // Buscar y eliminar la comunidad
-    const result = await Community.destroy({
+    const userCommunity = await UserCommunity.findOne({
       where: {
-        id: req.body.community_id,
+        user_id: userId,
+        community_id: communityId
       },
+      include: [{
+        model: Role,
+        as: 'role'
+      }]
     });
-
-    // Verificar si la comunidad se eliminó correctamente
-    if (result === 0) {
-      return res.status(404).json({
-        message: "Community not found",
-      });
+    if (!userCommunity || !['community_founder', 'system_administrator'].includes(userCommunity.role.name) ) {
+      return res.status(403).json({ message: "You don't have the necessary permissions to do that." });
     }
 
-    res.json({
-      message: "Community deleted successfully",
-    });
+
+    // Encuentra la comunidad por su ID
+    const community = await Community.findByPk(communityId);
+
+    // Si no existe la comunidad, devuelve un error
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Elimina la comunidad
+    await community.destroy();
+
+    // Envía una respuesta confirmando la eliminación
+    res.status(200).json({ message: "Community deleted successfully" });
   } catch (error) {
     console.error("Error deleting community:", error);
     res.status(500).json({
@@ -187,9 +201,9 @@ exports.giveUserCommunityRole = async (req, res) => {
 
 exports.changeImage = async (req, res) => {
   try {
-    if (!req.params.userId || !req.body.picture) {
+    if (!req.params.community_id || !req.body.picture) {
       return res.status(400).json({
-        message: "Parameters missing: userId or picture not present",
+        message: "Parameters missing: community_id or picture not present",
       });
     }
     const community = await Community.findOne({
@@ -201,6 +215,7 @@ exports.changeImage = async (req, res) => {
       });
     } else {
       community.picture = req.body.picture;
+      console.log(community.picture);
       await community.save();
       res.json({
         message: "Community registered successfully",
@@ -338,7 +353,6 @@ exports.getPosts = async (req, res) => {
         },
       });
       const categoryIds = categories.map((category) => category.id);
-
       posts = await Post.findAll({
         where: {
           category_id: categoryIds,
@@ -384,3 +398,5 @@ exports.createPost = async (req, res) => {
     });
   }
 };
+
+
