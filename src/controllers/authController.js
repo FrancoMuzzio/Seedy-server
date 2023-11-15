@@ -1,7 +1,7 @@
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const config = require('../config/config.json');
 const { User } = require("../models");
 const { transporter, supportEmail } = require("./emailController");
 const { Op } = require('sequelize');
@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
   const user = await User.findOne({ where: { username: req.body.username } });
   if (user && (await bcrypt.compare(req.body.password, user.password))) {
     const response = {
-      token: jwt.sign({ id: user.id }, config.jwtSecret),
+      token: jwt.sign({ id: user.id }, process.env.JWT_SECRET),
       userInfo: {
         id: user.id,
         username: user.username,

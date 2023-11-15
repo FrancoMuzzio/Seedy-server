@@ -3,18 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const process = require('process');
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const database = require(__dirname + '/../config/database.json')[env];
+const sequelize = require('../config/database'); // Esta es la instancia de Sequelize que debes usar
 const db = {};
-
-let sequelize;
-if (database.use_env_variable) {
-  sequelize = new Sequelize(process.env[database.use_env_variable], database);
-} else {
-  sequelize = new Sequelize(database.database, database.username, database.password, database);
-}
 
 fs
   .readdirSync(__dirname)
