@@ -170,3 +170,5 @@ exports.getUserPlants = async (req, res) => {
     return res.status(500).send({ message: 'Error processing request.' });
   }
 };
+
+

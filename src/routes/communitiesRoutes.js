@@ -13,12 +13,6 @@ router.post(
   communitiesController.create
 );
 
-router.delete(
-  "/communities/delete",
-  authenticateJWT,
-  communitiesController.delete
-);
-
 router.post(
   "/communities/:community_id/change-image",
   authenticateJWT,
@@ -47,6 +41,16 @@ router.get(
   communitiesController.getCategories
 );
 
-router.post("/communities/posts", communitiesController.getPosts);
+router.post(
+  "/communities/posts",
+  authenticateJWT,
+  communitiesController.getPosts
+);
+
+router.delete(
+  "/communities/:communityId",
+  authenticateJWT,
+  communitiesController.deleteCommunity
+);
 
 module.exports = router;
