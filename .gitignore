@@ -6,3 +6,5 @@ uploads/*
 config/config.js
 
 node_modules/
+
+.env

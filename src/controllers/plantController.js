@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { User, Plant, UserPlant } = require("../models");
 
 exports.create = async (req, res) => {
@@ -153,22 +154,45 @@ exports.getUserPlants = async (req, res) => {
     const userId = req.user.id;
 
     const userWithPlants = await User.findByPk(userId, {
-      include: [{
-        model: Plant,
-        as: 'plants',
-        through: { attributes: [] }
-      }]
+      include: [
+        {
+          model: Plant,
+          as: "plants",
+          through: { attributes: [] },
+        },
+      ],
     });
 
     if (!userWithPlants) {
-      return res.status(404).send({ message: 'User not found.' });
+      return res.status(404).send({ message: "User not found." });
     }
 
     return res.status(200).send(userWithPlants.plants);
   } catch (error) {
-    console.error('Error fetching users plants:', error);
-    return res.status(500).send({ message: 'Error processing request.' });
+    console.error("Error fetching users plants:", error);
+    return res.status(500).send({ message: "Error processing request." });
   }
 };
 
+exports.identifyPlant = async (req, res) => {
+  try {
+    if (!req.body.photo_url || !req.body.lang) {
+      return res.status(400).json({
+        message: "Parameters missing: photo_url or lang not present",
+      });
+    }
 
+    const response = await fetch(
+      `https://my-api.plantnet.org/v2/identify/all?api-key=${
+        process.env.NODE_ENV
+      }&images=${encodeURI(req.body.photo_url)}&lang=${
+        req.body.lang
+      }&include-related-images=true`
+    );
+    const responseData = await response.json();
+    return res.status(200).send(responseData.results);
+  } catch (error) {
+    console.error("Error identifying plant:", error);
+    return res.status(500).send({ message: "Error processing request." });
+  }
+};
