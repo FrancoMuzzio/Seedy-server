@@ -20,7 +20,7 @@ router.get(
   plantsController.getPlantIdByName
 );
 router.get(
-  "/plant/getUserPlants",
+  "/plant/getUserPlants/:userId",
   authenticateJWT,
   plantsController.getUserPlants
 );

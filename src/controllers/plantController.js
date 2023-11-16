@@ -151,7 +151,7 @@ exports.getPlantIdByName = async (req, res) => {
 
 exports.getUserPlants = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.params.id;
 
     const userWithPlants = await User.findByPk(userId, {
       include: [
@@ -181,7 +181,11 @@ exports.identifyPlant = async (req, res) => {
         message: "Parameters missing: photo_url or lang not present",
       });
     }
-    const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANTNET_API_KEY}&images=${encodeURI(req.body.photo_url)}&lang=${req.body.lang}&include-related-images=true`;
+    const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${
+      process.env.PLANTNET_API_KEY
+    }&images=${encodeURI(req.body.photo_url)}&lang=${
+      req.body.lang
+    }&include-related-images=true`;
     const response = await fetch(url);
 
     if (response.ok) {
@@ -198,3 +202,5 @@ exports.identifyPlant = async (req, res) => {
     return res.status(500).send({ message: "Error processing request." });
   }
 };
+
+
