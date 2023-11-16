@@ -176,6 +176,7 @@ exports.getUserPlants = async (req, res) => {
 
 exports.identifyPlant = async (req, res) => {
   try {
+    console.log('hola');
     if (!req.body.photo_url || !req.body.lang) {
       return res.status(400).json({
         message: "Parameters missing: photo_url or lang not present",
