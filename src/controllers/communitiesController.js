@@ -104,8 +104,7 @@ exports.deleteCommunity = async (req, res) => {
 
     if (!communityId) {
       return res.status(400).json({
-        message:
-          "Parameters missing: communityId not present",
+        message: "Parameters missing: communityId not present",
       });
     }
     const userId = req.user.id;
@@ -113,17 +112,27 @@ exports.deleteCommunity = async (req, res) => {
     const userCommunity = await UserCommunity.findOne({
       where: {
         user_id: userId,
-        community_id: communityId
+        community_id: communityId,
       },
-      include: [{
-        model: Role,
-        as: 'role'
-      }]
+      include: [
+        {
+          model: Role,
+          as: "role",
+        },
+      ],
     });
-    if (!userCommunity || !['community_founder', 'system_administrator'].includes(userCommunity.role.name) ) {
-      return res.status(403).json({ message: "You don't have the necessary permissions to do that." });
+    if (
+      !userCommunity ||
+      !["community_founder", "system_administrator"].includes(
+        userCommunity.role.name
+      )
+    ) {
+      return res
+        .status(403)
+        .json({
+          message: "You don't have the necessary permissions to do that.",
+        });
     }
-
 
     // Encuentra la comunidad por su ID
     const community = await Community.findByPk(communityId);
@@ -155,7 +164,6 @@ exports.giveUserCommunityRole = async (req, res) => {
         message: "Parameters missing: user_id, or role_name not present",
       });
     }
-
     // Buscar el role_id basado en el role_name
     const role = await Role.findOne({
       where: { name: role_name },
@@ -168,7 +176,7 @@ exports.giveUserCommunityRole = async (req, res) => {
     }
 
     const role_id = role.id;
-
+    console.log(role_id);
     // El resto del código sigue igual...
     const existingEntry = await UserCommunity.findOne({
       where: {
@@ -398,5 +406,3 @@ exports.createPost = async (req, res) => {
     });
   }
 };
-
-

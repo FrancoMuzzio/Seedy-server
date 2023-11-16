@@ -189,8 +189,16 @@ exports.identifyPlant = async (req, res) => {
         req.body.lang
       }&include-related-images=true`
     );
-    const responseData = await response.json();
-    return res.status(200).json(responseData.results);
+    if (response.ok) {
+      const responseData = await response.json();
+      return res.status(200).json(responseData.results);
+    } else {
+      const errorData = await response.json();
+      console.error(errorData);
+      return res.status(response.status).json({
+        message: errorData.error_message || "Error from external API.",
+      });
+    }
   } catch (error) {
     console.error("Error identifying plant:", error);
     return res.status(500).send({ message: "Error processing request." });
