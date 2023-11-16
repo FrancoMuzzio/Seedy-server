@@ -187,10 +187,11 @@ exports.identifyPlant = async (req, res) => {
 
     if (response.ok) {
       const responseData = await response.json();
+      console.log('responseData', responseData);
       return res.status(200).json(responseData.results);
     } else {
       const errorData = await response.json();
-      console.error(errorData);
+      console.error('errorData', errorData);
       return res.status(response.status).json({
         message: errorData.error_message || "Error from external API.",
       });
