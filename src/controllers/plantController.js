@@ -151,7 +151,7 @@ exports.getPlantIdByName = async (req, res) => {
 
 exports.getUserPlants = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.params.userId;
 
     const userWithPlants = await User.findByPk(userId, {
       include: [
