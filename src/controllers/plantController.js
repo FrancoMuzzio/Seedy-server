@@ -181,16 +181,18 @@ exports.identifyPlant = async (req, res) => {
         message: "Parameters missing: photo_url or lang not present",
       });
     }
+    const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANTNET_API_KEY}&images=${encodeURI(req.body.photo_url)}&lang=${req.body.lang}&include-related-images=true`;
+    const response = await fetch(url);
 
-    const response = await fetch(
-      `https://my-api.plantnet.org/v2/identify/all?api-key=${
-        process.env.NODE_ENV
-      }&images=${encodeURI(req.body.photo_url)}&lang=${
-        req.body.lang
-      }&include-related-images=true`
-    );
-    const responseData = await response.json();
-    return res.status(200).send(responseData.results);
+    if (response.ok) {
+      const responseData = await response.json();
+      return res.status(200).json(responseData.results);
+    } else {
+      const errorData = await response.json();
+      return res.status(response.status).json({
+        message: errorData.error_message || "Error from external API.",
+      });
+    }
   } catch (error) {
     console.error("Error identifying plant:", error);
     return res.status(500).send({ message: "Error processing request." });

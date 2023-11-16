@@ -24,6 +24,6 @@ router.get(
   authenticateJWT,
   plantsController.getUserPlants
 );
-router.post("/identifyPlant", authenticateJWT, plantsController.identifyPlant);
+router.post("/plant/identify", authenticateJWT, plantsController.identifyPlant);
 
 module.exports = router;
