@@ -190,8 +190,7 @@ exports.identifyPlant = async (req, res) => {
       }&include-related-images=true`
     );
     const responseData = await response.json();
-    console.log(req.body.lang);
-    console.log(responseData);
+    console.log(responseData.results);
     return res.status(200).send(responseData.results);
   } catch (error) {
     console.error("Error identifying plant:", error);
