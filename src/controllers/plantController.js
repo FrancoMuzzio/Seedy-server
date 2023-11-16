@@ -181,7 +181,9 @@ exports.identifyPlant = async (req, res) => {
         message: "Parameters missing: photo_url or lang not present",
       });
     }
-    const response = await fetch(`https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANTNET_API_KEY}&images=${encodeURI(req.body.photo_url)}&lang=${req.body.lang}&include-related-images=true`);
+    const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANTNET_API_KEY}&images=${encodeURI(req.body.photo_url)}&lang=${req.body.lang}&include-related-images=true`;
+    console.log(url);
+    const response = await fetch($url);
 
     if (response.ok) {
       const responseData = await response.json();
