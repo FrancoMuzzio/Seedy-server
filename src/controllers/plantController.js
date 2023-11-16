@@ -182,16 +182,13 @@ exports.identifyPlant = async (req, res) => {
       });
     }
     const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANTNET_API_KEY}&images=${encodeURI(req.body.photo_url)}&lang=${req.body.lang}&include-related-images=true`;
-    console.log(url);
     const response = await fetch(url);
 
     if (response.ok) {
       const responseData = await response.json();
-      console.log('responseData', responseData);
       return res.status(200).json(responseData.results);
     } else {
       const errorData = await response.json();
-      console.error('errorData', errorData);
       return res.status(response.status).json({
         message: errorData.error_message || "Error from external API.",
       });
