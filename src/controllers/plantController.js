@@ -153,35 +153,36 @@ exports.getUserPlants = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    // Obtener parámetros de paginación de los query parameters
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10; // Establecer un límite predeterminado
+    const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    console.log(page);
-    console.log(limit);
-    console.log(offset);
-    const userWithPlants = await User.findByPk(userId, {
-      include: [
-        {
-          model: Plant,
-          as: "plants",
-          through: { attributes: [] },
-          limit: limit,
-          offset: offset,
-        },
-      ],
+
+    const userPlants = await UserPlant.findAll({
+      where: { user_id: userId },
+      limit: limit,
+      offset: offset,
+      attributes: ['plant_id'],
     });
 
-    if (!userWithPlants) {
-      return res.status(404).send({ message: "User not found." });
+    const plantIds = userPlants.map(up => up.plant_id);
+
+    if (!plantIds.length) {
+      return res.status(200).send([]);
     }
 
-    return res.status(200).send(userWithPlants.plants);
+    const plants = await Plant.findAll({
+      where: {
+        id: plantIds
+      }
+    });
+
+    return res.status(200).send(plants);
   } catch (error) {
     console.error("Error fetching users plants:", error);
     return res.status(500).send({ message: "Error processing request." });
   }
 };
+
 
 
 exports.identifyPlant = async (req, res) => {

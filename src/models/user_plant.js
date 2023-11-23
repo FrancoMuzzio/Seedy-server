@@ -1,4 +1,4 @@
-// models/UserCommunity.js
+// models/UserPlant.js
 
 const { DataTypes } = require('sequelize');
 
