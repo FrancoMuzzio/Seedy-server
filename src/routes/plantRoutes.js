@@ -22,8 +22,14 @@ router.get(
 router.get(
   "/plant/getUserPlants/:userId",
   authenticateJWT,
-  plantsController.getUserPlants
-);
+  (req, res) => {
+    const { userId } = req.params;
+  
+    const { page, limit } = req.query;
+  
+    plantsController.getUserPlants(req, res, userId, page, limit);
+  });
+
 router.post("/plant/identify", authenticateJWT, plantsController.identifyPlant);
 
 module.exports = router;

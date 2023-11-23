@@ -153,12 +153,19 @@ exports.getUserPlants = async (req, res) => {
   try {
     const userId = req.params.userId;
 
+    // Obtener parámetros de paginación de los query parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10; // Establecer un límite predeterminado
+    const offset = (page - 1) * limit;
+
     const userWithPlants = await User.findByPk(userId, {
       include: [
         {
           model: Plant,
           as: "plants",
           through: { attributes: [] },
+          limit: limit,
+          offset: offset,
         },
       ],
     });
@@ -173,6 +180,7 @@ exports.getUserPlants = async (req, res) => {
     return res.status(500).send({ message: "Error processing request." });
   }
 };
+
 
 exports.identifyPlant = async (req, res) => {
   try {
@@ -202,5 +210,3 @@ exports.identifyPlant = async (req, res) => {
     return res.status(500).send({ message: "Error processing request." });
   }
 };
-
-
