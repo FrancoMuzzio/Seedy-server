@@ -9,7 +9,7 @@ router.post(
   plantsController.firstOrCreate
 );
 router.post("/plant/associate", authenticateJWT, plantsController.associate);
-router.post(
+router.delete(
   "/plant/disassociate",
   authenticateJWT,
   plantsController.dissociate
