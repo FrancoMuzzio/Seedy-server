@@ -10,7 +10,7 @@ router.post(
 );
 router.post("/plant/associate", authenticateJWT, plantsController.associate);
 router.delete(
-  "/plant/disassociate",
+  "/plant/disassociate/:plantId",
   authenticateJWT,
   plantsController.dissociate
 );
