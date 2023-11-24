@@ -9,6 +9,11 @@ router.post(
   plantsController.firstOrCreate
 );
 router.post("/plant/associate", authenticateJWT, plantsController.associate);
+router.post(
+  "/plant/disassociate",
+  authenticateJWT,
+  plantsController.dissociate
+);
 router.get(
   "/plant/:plantId/isAssociated",
   authenticateJWT,
@@ -19,16 +24,13 @@ router.get(
   authenticateJWT,
   plantsController.getPlantIdByName
 );
-router.get(
-  "/plant/getUserPlants/:userId",
-  authenticateJWT,
-  (req, res) => {
-    const { userId } = req.params;
-  
-    const { page, limit } = req.query;
-  
-    plantsController.getUserPlants(req, res, userId, page, limit);
-  });
+router.get("/plant/getUserPlants/:userId", authenticateJWT, (req, res) => {
+  const { userId } = req.params;
+
+  const { page, limit } = req.query;
+
+  plantsController.getUserPlants(req, res, userId, page, limit);
+});
 
 router.post("/plant/identify", authenticateJWT, plantsController.identifyPlant);
 

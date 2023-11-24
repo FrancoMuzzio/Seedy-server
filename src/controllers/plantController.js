@@ -101,6 +101,37 @@ exports.associate = async (req, res) => {
   }
 };
 
+exports.dissociate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const plantId = req.params.plantId;
+    const deletionResult = await UserPlant.destroy({
+      where: {
+        user_id: userId,
+        plant_id: plantId,
+      },
+    });
+
+    if (deletionResult > 0) {
+      return res.status(200).json({
+        message: "Plant dissociated successfully from user",
+      });
+    } else {
+      return res.status(404).json({
+        message: "Association not found or already removed",
+      });
+    }
+  } catch (error) {
+    console.error(
+      "An error occurred while dissociating the plant from the user:",
+      error
+    );
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 exports.isPlantAssociatedWithUser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -166,10 +197,10 @@ exports.getUserPlants = async (req, res) => {
       where: { user_id: userId },
       limit: limit,
       offset: offset,
-      attributes: ['plant_id'],
+      attributes: ["plant_id"],
     });
 
-    const plantIds = userPlants.map(up => up.plant_id);
+    const plantIds = userPlants.map((up) => up.plant_id);
 
     if (!plantIds.length) {
       return res.status(200).send({ plants: [], hasMore: false });
@@ -177,11 +208,11 @@ exports.getUserPlants = async (req, res) => {
 
     const plants = await Plant.findAll({
       where: {
-        id: plantIds
-      }
+        id: plantIds,
+      },
     });
 
-    const hasMore = (page * limit) < totalPlantsCount;
+    const hasMore = page * limit < totalPlantsCount;
 
     return res.status(200).send({ plants, hasMore });
   } catch (error) {
@@ -189,8 +220,6 @@ exports.getUserPlants = async (req, res) => {
     return res.status(500).send({ message: "Error processing request." });
   }
 };
-
-
 
 exports.identifyPlant = async (req, res) => {
   try {
