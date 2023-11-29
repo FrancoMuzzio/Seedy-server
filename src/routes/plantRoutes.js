@@ -34,4 +34,10 @@ router.get("/plant/getUserPlants/:userId", authenticateJWT, (req, res) => {
 
 router.post("/plant/identify", authenticateJWT, plantsController.identifyPlant);
 
+router.get(
+  "/plant",
+  authenticateJWT,
+  plantsController.get
+);
+
 module.exports = router;
