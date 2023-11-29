@@ -254,6 +254,7 @@ exports.identifyPlant = async (req, res) => {
 exports.get = async (req, res) => {
   try {
     const plants = await Plant.findAll();
+    console.log(plants);
     return res.status(200).send({ plants });
   } catch (error) {
     console.error("Error fetching plants:", error.message, error.stack);
