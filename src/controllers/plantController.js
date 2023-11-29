@@ -254,7 +254,7 @@ exports.identifyPlant = async (req, res) => {
 exports.get = async (req, res) => {
   try {
     const plants = await Plant.findAll();
-    return res.status(200).json({ plants });
+    return res.status(200).json(plants);
   } catch (error) {
     console.error("Error fetching plants:", error.message, error.stack);
     return res.status(500).send({ message: "Error processing request." });
