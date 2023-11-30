@@ -184,26 +184,15 @@ exports.getUserPlants = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
-    // Cuenta el total de plantas del usuario
-    const totalPlantsCount = await UserPlant.count({
-      where: { user_id: userId },
-    });
-
     const userPlants = await UserPlant.findAll({
       where: { user_id: userId },
-      limit: limit,
-      offset: offset,
       attributes: ["plant_id"],
     });
 
     const plantIds = userPlants.map((up) => up.plant_id);
 
     if (!plantIds.length) {
-      return res.status(200).send({ plants: [], hasMore: false });
+      return res.status(200).send({ plants: [] });
     }
 
     const plants = await Plant.findAll({
@@ -212,14 +201,13 @@ exports.getUserPlants = async (req, res) => {
       },
     });
 
-    const hasMore = page * limit < totalPlantsCount;
-
-    return res.status(200).send({ plants, hasMore });
+    return res.status(200).send({ plants });
   } catch (error) {
     console.error("Error fetching users plants:", error);
     return res.status(500).send({ message: "Error processing request." });
   }
 };
+
 
 exports.identifyPlant = async (req, res) => {
   try {
