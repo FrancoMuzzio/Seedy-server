@@ -101,6 +101,37 @@ exports.associate = async (req, res) => {
   }
 };
 
+exports.dissociate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const plantId = req.params.plantId;
+    const deletionResult = await UserPlant.destroy({
+      where: {
+        user_id: userId,
+        plant_id: plantId,
+      },
+    });
+
+    if (deletionResult > 0) {
+      return res.status(200).json({
+        message: "Plant dissociated successfully from user",
+      });
+    } else {
+      return res.status(404).json({
+        message: "Association not found or already removed",
+      });
+    }
+  } catch (error) {
+    console.error(
+      "An error occurred while dissociating the plant from the user:",
+      error
+    );
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 exports.isPlantAssociatedWithUser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -151,23 +182,39 @@ exports.getPlantIdByName = async (req, res) => {
 
 exports.getUserPlants = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.params.userId;
 
-    const userWithPlants = await User.findByPk(userId, {
-      include: [
-        {
-          model: Plant,
-          as: "plants",
-          through: { attributes: [] },
-        },
-      ],
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Cuenta el total de plantas del usuario
+    const totalPlantsCount = await UserPlant.count({
+      where: { user_id: userId },
     });
 
-    if (!userWithPlants) {
-      return res.status(404).send({ message: "User not found." });
+    const userPlants = await UserPlant.findAll({
+      where: { user_id: userId },
+      limit: limit,
+      offset: offset,
+      attributes: ["plant_id"],
+    });
+
+    const plantIds = userPlants.map((up) => up.plant_id);
+
+    if (!plantIds.length) {
+      return res.status(200).send({ plants: [], hasMore: false });
     }
 
-    return res.status(200).send(userWithPlants.plants);
+    const plants = await Plant.findAll({
+      where: {
+        id: plantIds,
+      },
+    });
+
+    const hasMore = page * limit < totalPlantsCount;
+
+    return res.status(200).send({ plants, hasMore });
   } catch (error) {
     console.error("Error fetching users plants:", error);
     return res.status(500).send({ message: "Error processing request." });
@@ -181,7 +228,11 @@ exports.identifyPlant = async (req, res) => {
         message: "Parameters missing: photo_url or lang not present",
       });
     }
-    const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANTNET_API_KEY}&images=${encodeURI(req.body.photo_url)}&lang=${req.body.lang}&include-related-images=true`;
+    const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${
+      process.env.PLANTNET_API_KEY
+    }&images=${encodeURI(req.body.photo_url)}&lang=${
+      req.body.lang
+    }&include-related-images=true`;
     const response = await fetch(url);
 
     if (response.ok) {
@@ -195,6 +246,17 @@ exports.identifyPlant = async (req, res) => {
     }
   } catch (error) {
     console.error("Error identifying plant:", error);
+    return res.status(500).send({ message: "Error processing request." });
+  }
+};
+
+
+exports.get = async (req, res) => {
+  try {
+    const plants = await Plant.findAll();
+    return res.status(200).json(plants);
+  } catch (error) {
+    console.error("Error fetching plants:", error.message, error.stack);
     return res.status(500).send({ message: "Error processing request." });
   }
 };
