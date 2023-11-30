@@ -24,13 +24,8 @@ router.get(
   authenticateJWT,
   plantsController.getPlantIdByName
 );
-router.get("/plant/getUserPlants/:userId", authenticateJWT, (req, res) => {
-  const { userId } = req.params;
+router.get("/plant/getUserPlants/:userId", authenticateJWT, plantsController.getUserPlants);
 
-  const { page, limit } = req.query;
-
-  plantsController.getUserPlants(req, res, userId, page, limit);
-});
 
 router.post("/plant/identify", authenticateJWT, plantsController.identifyPlant);
 
