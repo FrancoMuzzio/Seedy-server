@@ -6,6 +6,8 @@ const imageRoutes = require('./routes/imageRoutes');
 const plantRoutes = require('./routes/plantRoutes');
 const sequelize = require('./config/database');
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swaggerConfig');
 
 const app = express();
 
@@ -21,6 +23,7 @@ app.use('/', communitiesRoutes);
 app.use('/', imageRoutes);
 app.use('/', plantRoutes);
 app.use('/uploads', express.static('uploads'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Sincronización con la base de datos
 sequelize.sync();

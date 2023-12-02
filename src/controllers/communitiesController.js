@@ -73,8 +73,7 @@ exports.create = async (req, res) => {
     if (
       !req.body.name ||
       !req.body.description ||
-      !req.body.picture ||
-      !req.body.user_id
+      !req.body.picture
     ) {
       return res.status(400).json({
         message:

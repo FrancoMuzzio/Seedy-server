@@ -7,14 +7,35 @@ const { transporter, supportEmail } = require("./emailController");
 const { Op } = require('sequelize');
 
 exports.register = async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  const user = await User.create({
-    username: req.body.username,
-    email: req.body.email,
-    picture: req.body.picture,
-    password: hashedPassword,
-  });
-  res.send("User registered successfully");
+  const { username, email, picture, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).send("All fields are required: username, email, picture, password");
+  }
+
+  try {
+    const existingUser = await User.findOne({ 
+      where: { 
+        [Op.or]: [{ username }, { email }] 
+      } 
+    });
+
+    if (existingUser) {
+      return res.status(400).send("Username or email already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      username,
+      email,
+      picture, 
+      password: hashedPassword,
+    });
+
+    res.send("User registered successfully");
+  } catch (error) {
+    res.status(500).send("Error registering user");
+  }
 };
 
 exports.login = async (req, res) => {
@@ -95,17 +116,17 @@ exports.forgotPassword = async (req, res) => {
       console.log("Error al enviar el correo:", error);
       return res
         .status(500)
-        .send({ message: "Error al enviar el correo de restablecimiento." });
+        .send({ message: "Error sending reset email." });
     } else {
       console.log("Correo enviado:", info.response);
       return res.json({
-        message: "Correo enviado con instrucciones para restablecer contraseña",
+        message: "Email sent with instructions to reset password",
       });
     }
   });
 
   res.json({
-    message: "Correo enviado con instrucciones para restablecer contraseña",
+    message: "Email sent with instructions to reset password",
   });
 };
 
@@ -117,7 +138,7 @@ exports.resetPassword = async (req, res) => {
     },
   });
   if (!user) {
-    return res.status(400).json({ message: "Token expirado" });
+    return res.status(400).json({ message: "Expired token" });
   }
 
   // hasheo de password
@@ -126,5 +147,5 @@ exports.resetPassword = async (req, res) => {
   user.resetPasswordExpires = null;
   await user.save();
 
-  res.json({ message: "Contraseña actualizada con éxito" });
+  res.json({ message: "Password successfully updated" });
 };

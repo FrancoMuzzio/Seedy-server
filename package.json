@@ -21,7 +21,9 @@
     "mysql2": "^3.5.2",
     "nodemailer": "^6.9.4",
     "sequelize": "^6.32.1",
-    "sharp": "^0.32.6"
+    "sharp": "^0.32.6",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "sequelize-cli": "^6.6.1"
