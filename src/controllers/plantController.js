@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { User, Plant, UserPlant } = require("../models");
+const { Plant, UserPlant } = require("../models");
 
 exports.create = async (req, res) => {
   try {
@@ -208,7 +208,6 @@ exports.getUserPlants = async (req, res) => {
   }
 };
 
-
 exports.identifyPlant = async (req, res) => {
   try {
     if (!req.body.photo_url || !req.body.lang) {
@@ -237,7 +236,6 @@ exports.identifyPlant = async (req, res) => {
     return res.status(500).send({ message: "Error processing request." });
   }
 };
-
 
 exports.get = async (req, res) => {
   try {
