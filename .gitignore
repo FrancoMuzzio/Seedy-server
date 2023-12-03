@@ -1,7 +1,9 @@
 # Ignorar todas las carpetas en 'uploads'
-uploads/default/*
+uploads/default/community_picture/*
+uploads/default/profile_picture/*
 uploads/communities/*
 uploads/users/*
+uploads/plants/*
 
 config/config.js
 
