@@ -11,4 +11,4 @@
 **sharp** (Procesamiento de imágenes de alto rendimiento)
 
 **Swagger** (Documentacion de la API):<br>
-http://ec2-54-233-222-223.sa-east-1.compute.amazonaws.com:3000/api-docs/#/Communities/post_communities__community_id__change_image
+http://ec2-54-233-222-223.sa-east-1.compute.amazonaws.com:3000/api-docs
