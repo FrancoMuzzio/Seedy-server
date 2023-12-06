@@ -28,11 +28,17 @@ module.exports = (sequelize) => {
   });
   
   UserCommunity.associate = (models) => {
+    UserCommunity.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'user'
+    });
     UserCommunity.belongsTo(models.Role, {
       foreignKey: 'role_id',
       as: 'role'
     });
   };
+
+  
 
   return UserCommunity;
 };

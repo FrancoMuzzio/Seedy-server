@@ -510,19 +510,32 @@ router.get(
  *                     type: integer
  *                   title:
  *                     type: string
- *                   user_id:
- *                     type: integer
  *                   category_id:
  *                     type: integer
- *                   date:
+ *                   createdAt:
  *                     type: string
  *                     format: date-time
+ *                   user_id:
+ *                     type: object
+ *                     properties:
+ *                      id:
+ *                        type: integer
+ *                      username:
+ *                        type: string
+ *                      email:
+ *                        type: string
+ *                      picture:
+ *                        type: string
  *             example:
  *               - id: 1
  *                 title: "Better care for your cacti"
- *                 user_id: 2
  *                 category_id: 1
  *                 date: "2023-04-12T15:00:00Z"
+ *                 user:  # Ejemplo de objeto de usuario
+ *                   id: 2
+ *                   username: "JohnDoe"
+ *                   email: "johndoe@example.com"
+ *                   picture: "/path/to/profile/picture.jpg"
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -542,9 +555,72 @@ router.post(
   communitiesController.getPosts
 );
 
+
 /**
  * @swagger
- * /communities/{communityId}:
+ * /communities/categories/{category_id}/posts/create:
+ *   post:
+ *     summary: Crea una nueva publicación
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - content
+ *               - categoy_id
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Titulo de la publicación.
+ *               description:
+ *                 type: string
+ *                 description: Contenido html de la publicación.
+ *               picture:
+ *                 type: string
+ *                 description: ID de la categoria de la publicación.
+ *     responses:
+ *       200:
+ *         description: Publicación creada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 id:
+ *                   type: integer
+ *             example:
+ *               message: "Post registered successfully"
+ *               id: 2
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.post(
+  "/communities/categories/:category_id/posts/create",
+  authenticateJWT,
+  communitiesController.createPost
+);
+
+/**
+ * @swagger
+ * /communities/{community_id}:
  *   delete:
  *     summary: Elimina una comunidad
  *     tags: [Communities]

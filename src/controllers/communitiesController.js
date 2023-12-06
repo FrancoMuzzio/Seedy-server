@@ -70,11 +70,7 @@ exports.checkName = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    if (
-      !req.body.name ||
-      !req.body.description ||
-      !req.body.picture
-    ) {
+    if (!req.body.name || !req.body.description || !req.body.picture) {
       return res.status(400).json({
         message:
           "Parameters missing: name, description, picture or user_id not present",
@@ -126,11 +122,9 @@ exports.deleteCommunity = async (req, res) => {
         userCommunity.role.name
       )
     ) {
-      return res
-        .status(403)
-        .json({
-          message: "You don't have the necessary permissions to do that.",
-        });
+      return res.status(403).json({
+        message: "You don't have the necessary permissions to do that.",
+      });
     }
 
     // Encuentra la comunidad por su ID
@@ -175,7 +169,6 @@ exports.giveUserCommunityRole = async (req, res) => {
     }
 
     const role_id = role.id;
-    console.log(role_id);
     // El resto del código sigue igual...
     const existingEntry = await UserCommunity.findOne({
       where: {
@@ -222,7 +215,6 @@ exports.changeImage = async (req, res) => {
       });
     } else {
       community.picture = req.body.picture;
-      console.log(community.picture);
       await community.save();
       res.json({
         message: "Community registered successfully",
@@ -350,7 +342,7 @@ exports.getPosts = async (req, res) => {
         where: {
           category_id,
         },
-        attributes: ["id", "title", "user_id", "category_id", "date"],
+        attributes: ["id", "title", "user_id", "category_id", "createdAt"],
       });
     } else if (community_id) {
       // Si se proporciona community_id, obtener los posts de todas las categorías de esa comunidad
@@ -364,9 +356,39 @@ exports.getPosts = async (req, res) => {
         where: {
           category_id: categoryIds,
         },
-        attributes: ["id", "title", "user_id", "category_id", "date"],
+        attributes: ["id", "title", "category_id", "createdAt"],
+        include: [
+          {
+            model: Category,
+            as: "category",
+            attributes: ["name"],
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: ["id", "username", "email", "picture"],
+            include: [
+              {
+                model: UserCommunity,
+                as: "userCommunities",
+                attributes: ["role_id"],
+                where: {
+                  community_id: community_id,
+                },
+                include: [
+                  {
+                    model: Role,
+                    as: "role",
+                    attributes: ["name"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       });
     }
+
     if (posts.length === 0) {
       return res.status(404).json({ message: "No posts found." });
     }
@@ -380,17 +402,17 @@ exports.getPosts = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
-    const { name, content, user_id } = req.body;
+    const { title, body } = req.body;
     const { category_id } = req.params;
-    if (!name || !content || !user_id || !category_id) {
+    const user_id = req.user.id;
+    if (!title || !body || !category_id) {
       return res.status(400).json({
-        message:
-          "Parameters missing: content, user_id, category_id or name not present",
+        message: "Parameters missing: body, category_id or name not present",
       });
     }
     const post = await Post.create({
-      name,
-      content,
+      title,
+      content: body,
       user_id,
       category_id,
     });
