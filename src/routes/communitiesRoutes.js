@@ -491,51 +491,92 @@ router.get(
  *           schema:
  *             type: object
  *             required:
- *               - communityId
+ *               - community_id
  *             properties:
- *               communityId:
+ *               community_id:
  *                 type: string
  *                 description: ID de la comunidad cuyos posts se quieren obtener.
+ *               category_id:
+ *                 type: string
+ *                 description: ID de la categoria cuyos posts se quieren obtener.
+ *               limit:
+ *                 type: integer
+ *                 description: Límite de posts a traer.
+ *                 default: 5
+ *               page:
+ *                 type: integer
+ *                 description: Número de página
+ *                 default: 5
  *     responses:
  *       200:
  *         description: Posts de la comunidad obtenidos con éxito.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   title:
- *                     type: string
- *                   category_id:
- *                     type: integer
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                   user_id:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
  *                     type: object
  *                     properties:
- *                      id:
- *                        type: integer
- *                      username:
- *                        type: string
- *                      email:
- *                        type: string
- *                      picture:
- *                        type: string
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       category_id:
+ *                         type: integer
+ *                       category:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                          id:
+ *                            type: integer
+ *                          username:
+ *                            type: string
+ *                          email:
+ *                            type: string
+ *                          picture:
+ *                            type: string
+ *                          userCommunities:
+ *                            type: array
+ *                            items:
+ *                              type: object
+ *                              properties:
+ *                                role_id:
+ *                                  type: integer
+ *                                role:
+ *                                  type: object
+ *                                  properties:
+ *                                    name:
+ *                                      type: string
+ *                   totalPages:
+ *                     type: int
  *             example:
- *               - id: 1
- *                 title: "Better care for your cacti"
- *                 category_id: 1
- *                 date: "2023-04-12T15:00:00Z"
- *                 user:  # Ejemplo de objeto de usuario
- *                   id: 2
- *                   username: "JohnDoe"
- *                   email: "johndoe@example.com"
- *                   picture: "/path/to/profile/picture.jpg"
+ *               posts:
+ *                 - id: 1
+ *                   title: "Better care for your cacti"
+ *                   category_id: 1
+ *                   category: 
+ *                     name: "general"
+ *                   createdAt: "2023-04-12T15:00:00Z"
+ *                   user:  # Ejemplo de objeto de usuario
+ *                     id: 2
+ *                     username: "JohnDoe"
+ *                     email: "johndoe@example.com"
+ *                     picture: "/path/to/profile/picture.jpg"
+ *                     userCommunities:
+ *                       - role_id: 1
+ *                         role:
+ *                           name: "community_founder"
+ *               totalPages: 5
  *       500:
  *         description: Error interno del servidor.
  *         content:

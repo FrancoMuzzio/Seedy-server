@@ -332,68 +332,65 @@ exports.createCategory = async (req, res) => {
 };
 
 exports.getPosts = async (req, res) => {
-  const { category_id, community_id } = req.body;
+  const { category_id, community_id, limit = 5, page = 1 } = req.body;
 
   try {
-    let posts = [];
+    let whereConditions = {};
     if (category_id) {
-      // Si se proporciona category_id, obtener los posts de esa categoría
-      posts = await Post.findAll({
-        where: {
-          category_id,
-        },
-        attributes: ["id", "title", "user_id", "category_id", "createdAt"],
-      });
+      whereConditions.category_id = category_id;
     } else if (community_id) {
-      // Si se proporciona community_id, obtener los posts de todas las categorías de esa comunidad
       const categories = await Category.findAll({
-        where: {
-          community_id,
-        },
+        where: { community_id },
       });
       const categoryIds = categories.map((category) => category.id);
-      posts = await Post.findAll({
-        where: {
-          category_id: categoryIds,
-        },
-        attributes: ["id", "title", "category_id", "createdAt"],
-        include: [
-          {
-            model: Category,
-            as: "category",
-            attributes: ["name"],
-          },
-          {
-            model: User,
-            as: "user",
-            attributes: ["id", "username", "email", "picture"],
-            include: [
-              {
-                model: UserCommunity,
-                as: "userCommunities",
-                attributes: ["role_id"],
-                where: {
-                  community_id: community_id,
-                },
-                include: [
-                  {
-                    model: Role,
-                    as: "role",
-                    attributes: ["name"],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      });
+      whereConditions.category_id = categoryIds;
     }
 
-    if (posts.length === 0) {
+    const offset = (page - 1) * limit;
+
+    const { count, rows: posts } = await Post.findAndCountAll({
+      where: whereConditions,
+      limit,
+      offset,
+      attributes: ["id", "title", "category_id", "createdAt"],
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["name"],
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "email", "picture"],
+          include: [
+            {
+              model: UserCommunity,
+              as: "userCommunities",
+              attributes: ["role_id"],
+              where: {
+                community_id: community_id,
+              },
+              include: [
+                {
+                  model: Role,
+                  as: "role",
+                  attributes: ["name"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    if (count === 0) {
       return res.status(404).json({ message: "No posts found." });
     }
 
-    res.status(200).json(posts);
+    res.status(200).json({ posts, totalPages });
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ message: "Internal Server Error" });
