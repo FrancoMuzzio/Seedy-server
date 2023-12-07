@@ -72,8 +72,6 @@ exports.associate = async (req, res) => {
         message: "Parameters missing: plant_id not present",
       });
     }
-    console.log("req.user.id: ", req.user.id);
-    console.log("req.body.plant_id: ", req.body.plant_id);
     // Encuentra o crea la asociación en la tabla pivote UserPlant
     const [userPlantAssociation, created] = await UserPlant.findOrCreate({
       where: { user_id: req.user.id, plant_id: req.body.plant_id },

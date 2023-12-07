@@ -443,7 +443,6 @@ exports.getPost = async (req, res) => {
         message: "Parameters missing: post_id not present",
       });
     }
-    console.log(post_id);
     const post = await Post.findByPk(post_id);
     res.json(post);
   } catch (error) {
