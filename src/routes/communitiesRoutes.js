@@ -299,6 +299,85 @@ router.post(
 
 /**
  * @swagger
+ * /communities/{community_id}/user/{user_id}/role:
+ *   get:
+ *     summary: Devuelve el rol de un usuario en una determinada comunidad.
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la comunidad.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         description: ID del usuario.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Rol de usuario encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 role_id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 display_name:
+ *                   type: string
+ *             example:
+ *               role_id: 1
+ *               name: "Member"
+ *               display_name: "community_member"
+ *       400:
+ *         description: Parámetros faltantes o incorrectos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Parameters missing: user_id, or community_id not present"
+ *       404:
+ *         description: Usuario no tiene rol en comunidad.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "This user have no role in that community"
+
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Internal Server Error"
+
+ */
+
+router.get("/communities/:community_id/user/:user_id/role", authenticateJWT, communitiesController.getUserRole);
+
+
+/**
+ * @swagger
  * /communities/{community_id}/create-category:
  *   post:
  *     summary: Crea una categoría en una comunidad
@@ -596,6 +675,71 @@ router.post(
   communitiesController.getPosts
 );
 
+/**
+ * @swagger
+ * /communities/post/{post_id}:
+ *   get:
+ *     summary: Obtiene la publicación con el ID requerido
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         description: ID de la publicación.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Categorías de la comunidad obtenidas con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 title:
+ *                   type: string
+ *                 content:
+ *                   type: string
+ *                 user_id:
+ *                   type: integer
+ *                 category_id:
+ *                   type: integer
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *             example:
+ *                 id: 1
+ *                 title: "Tipos de suculentas"
+ *                 content: "<div>lorem ipsum</div>"
+ *                 user_id: 1
+ *                 category_id: 1
+ *                 createdAt: "2023-12-05 22:22:11"
+ *                 updatedAt: "2023-12-05 22:22:11"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.get(
+  "/communities/posts/:post_id",
+  authenticateJWT,
+  communitiesController.getPost
+);
 
 /**
  * @swagger

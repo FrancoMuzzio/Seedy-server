@@ -199,6 +199,43 @@ exports.giveUserCommunityRole = async (req, res) => {
   }
 };
 
+exports.getUserRole = async (req, res) => {
+  try {
+    const { community_id, user_id } = req.params;
+    if (!user_id || !community_id) {
+      return res.status(400).json({
+        message: "Parameters missing: user_id, or community_id not present",
+      });
+    }
+
+    const user_role = await UserCommunity.findOne({
+      where: { user_id, community_id },
+      attributes: ["role_id"],
+    });
+
+    if (!user_role) {
+      return res.status(404).json({
+        message: "This user has no role in that community",
+      });
+    }
+
+    const role = await Role.findByPk(user_role.role_id, { attributes: ['id', 'name', 'display_name'] });
+    if (!role) {
+      return res.status(404).json({
+        message: "Role not found",
+      });
+    }
+
+    res.json(role);
+  } catch (error) {
+    console.error("Error fetching role:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
 exports.changeImage = async (req, res) => {
   try {
     if (!req.params.community_id || !req.body.picture) {
@@ -353,6 +390,7 @@ exports.getPosts = async (req, res) => {
       limit,
       offset,
       attributes: ["id", "title", "category_id", "createdAt"],
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: Category,
@@ -394,6 +432,25 @@ exports.getPosts = async (req, res) => {
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getPost = async (req, res) => {
+  try {
+    const { post_id } = req.params;
+    if (!post_id) {
+      return res.status(400).json({
+        message: "Parameters missing: post_id not present",
+      });
+    }
+    console.log(post_id);
+    const post = await Post.findByPk(post_id);
+    res.json(post);
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
 };
 
