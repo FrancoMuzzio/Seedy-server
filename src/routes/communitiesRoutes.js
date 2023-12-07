@@ -299,6 +299,85 @@ router.post(
 
 /**
  * @swagger
+ * /communities/{community_id}/user/{user_id}/role:
+ *   get:
+ *     summary: Devuelve el rol de un usuario en una determinada comunidad.
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la comunidad.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         description: ID del usuario.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Rol de usuario encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 role_id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 display_name:
+ *                   type: string
+ *             example:
+ *               role_id: 1
+ *               name: "Member"
+ *               display_name: "community_member"
+ *       400:
+ *         description: Parámetros faltantes o incorrectos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Parameters missing: user_id, or community_id not present"
+ *       404:
+ *         description: Usuario no tiene rol en comunidad.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "This user have no role in that community"
+
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Internal Server Error"
+
+ */
+
+router.get("/communities/:community_id/user/:user_id/role", authenticateJWT, communitiesController.getUserRole);
+
+
+/**
+ * @swagger
  * /communities/{community_id}/create-category:
  *   post:
  *     summary: Crea una categoría en una comunidad
@@ -491,38 +570,92 @@ router.get(
  *           schema:
  *             type: object
  *             required:
- *               - communityId
+ *               - community_id
  *             properties:
- *               communityId:
+ *               community_id:
  *                 type: string
  *                 description: ID de la comunidad cuyos posts se quieren obtener.
+ *               category_id:
+ *                 type: string
+ *                 description: ID de la categoria cuyos posts se quieren obtener.
+ *               limit:
+ *                 type: integer
+ *                 description: Límite de posts a traer.
+ *                 default: 5
+ *               page:
+ *                 type: integer
+ *                 description: Número de página
+ *                 default: 5
  *     responses:
  *       200:
  *         description: Posts de la comunidad obtenidos con éxito.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   title:
- *                     type: string
- *                   user_id:
- *                     type: integer
- *                   category_id:
- *                     type: integer
- *                   date:
- *                     type: string
- *                     format: date-time
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       category_id:
+ *                         type: integer
+ *                       category:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                          id:
+ *                            type: integer
+ *                          username:
+ *                            type: string
+ *                          email:
+ *                            type: string
+ *                          picture:
+ *                            type: string
+ *                          userCommunities:
+ *                            type: array
+ *                            items:
+ *                              type: object
+ *                              properties:
+ *                                role_id:
+ *                                  type: integer
+ *                                role:
+ *                                  type: object
+ *                                  properties:
+ *                                    name:
+ *                                      type: string
+ *                   totalPages:
+ *                     type: int
  *             example:
- *               - id: 1
- *                 title: "Better care for your cacti"
- *                 user_id: 2
- *                 category_id: 1
- *                 date: "2023-04-12T15:00:00Z"
+ *               posts:
+ *                 - id: 1
+ *                   title: "Better care for your cacti"
+ *                   category_id: 1
+ *                   category: 
+ *                     name: "general"
+ *                   createdAt: "2023-04-12T15:00:00Z"
+ *                   user:  # Ejemplo de objeto de usuario
+ *                     id: 2
+ *                     username: "JohnDoe"
+ *                     email: "johndoe@example.com"
+ *                     picture: "/path/to/profile/picture.jpg"
+ *                     userCommunities:
+ *                       - role_id: 1
+ *                         role:
+ *                           name: "community_founder"
+ *               totalPages: 5
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -544,7 +677,135 @@ router.post(
 
 /**
  * @swagger
- * /communities/{communityId}:
+ * /communities/post/{post_id}:
+ *   get:
+ *     summary: Obtiene la publicación con el ID requerido
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         description: ID de la publicación.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Categorías de la comunidad obtenidas con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 title:
+ *                   type: string
+ *                 content:
+ *                   type: string
+ *                 user_id:
+ *                   type: integer
+ *                 category_id:
+ *                   type: integer
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *             example:
+ *                 id: 1
+ *                 title: "Tipos de suculentas"
+ *                 content: "<div>lorem ipsum</div>"
+ *                 user_id: 1
+ *                 category_id: 1
+ *                 createdAt: "2023-12-05 22:22:11"
+ *                 updatedAt: "2023-12-05 22:22:11"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.get(
+  "/communities/posts/:post_id",
+  authenticateJWT,
+  communitiesController.getPost
+);
+
+/**
+ * @swagger
+ * /communities/categories/{category_id}/posts/create:
+ *   post:
+ *     summary: Crea una nueva publicación
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - content
+ *               - categoy_id
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Titulo de la publicación.
+ *               description:
+ *                 type: string
+ *                 description: Contenido html de la publicación.
+ *               picture:
+ *                 type: string
+ *                 description: ID de la categoria de la publicación.
+ *     responses:
+ *       200:
+ *         description: Publicación creada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 id:
+ *                   type: integer
+ *             example:
+ *               message: "Post registered successfully"
+ *               id: 2
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.post(
+  "/communities/categories/:category_id/posts/create",
+  authenticateJWT,
+  communitiesController.createPost
+);
+
+/**
+ * @swagger
+ * /communities/{community_id}:
  *   delete:
  *     summary: Elimina una comunidad
  *     tags: [Communities]
