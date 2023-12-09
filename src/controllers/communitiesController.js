@@ -322,22 +322,29 @@ exports.getMembers = async (req, res) => {
 };
 
 exports.getCategories = async (req, res) => {
+  const { limit = 5, page = 1 } = req.body;
   const { community_id } = req.params;
 
   try {
-    const categories = await Category.findAll({
+    const offset = (page - 1) * limit;
+    const { count, rows: categories } = await Category.findAndCountAll({
       where: {
         community_id,
       },
+      limit,
+      offset,
+      attributes: ["id", "name", "description"],
+      order: [["createdAt", "DESC"]],
     });
+    const totalPages = Math.ceil(count / limit);
 
-    if (categories.length === 0) {
+    if (count === 0) {
       return res
         .status(404)
         .json({ message: "No categories found for this community." });
     }
 
-    res.status(200).json(categories);
+    res.status(200).json({ categories, totalPages });
   } catch (error) {
     console.error("Error fetching categories:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -420,7 +427,8 @@ exports.createCategory = async (req, res) => {
 };
 
 exports.getPosts = async (req, res) => {
-  const { category_id, community_id, limit = 5, page = 1 } = req.body;
+  const { category_id, limit = 5, page = 1 } = req.body;
+  const { community_id } = req.params;
 
   try {
     let whereConditions = {};

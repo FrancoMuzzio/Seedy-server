@@ -600,7 +600,7 @@ router.get(
 /**
  * @swagger
  * /communities/{community_id}/categories:
- *   get:
+ *   post:
  *     summary: Obtiene las categorías de una comunidad
  *     tags: [Communities]
  *     security:
@@ -645,7 +645,7 @@ router.get(
  *               message: "Internal Server Error"
  */
 
-router.get(
+router.post(
   "/communities/:community_id/categories",
   authenticateJWT,
   communitiesController.getCategories
@@ -653,12 +653,19 @@ router.get(
 
 /**
  * @swagger
- * /communities/posts:
+ * /communities/{community_id}/posts:
  *   post:
  *     summary: Obtiene los posts de una comunidad
  *     tags: [Communities]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la comunidad.
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -668,9 +675,6 @@ router.get(
  *             required:
  *               - community_id
  *             properties:
- *               community_id:
- *                 type: string
- *                 description: ID de la comunidad cuyos posts se quieren obtener.
  *               category_id:
  *                 type: string
  *                 description: ID de la categoria cuyos posts se quieren obtener.
@@ -766,7 +770,7 @@ router.get(
  */
 
 router.post(
-  "/communities/posts",
+  "/communities/:community_id/posts",
   authenticateJWT,
   communitiesController.getPosts
 );
