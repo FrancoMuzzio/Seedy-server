@@ -612,6 +612,18 @@ router.get(
  *         description: ID de la comunidad.
  *         schema:
  *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               page:
+ *                 type: integer
+ *                 description: Número de página.
+ *               limit:
+ *                 type: integer
+ *                 description: Maximo de items.
  *     responses:
  *       200:
  *         description: Categorías de la comunidad obtenidas con éxito.

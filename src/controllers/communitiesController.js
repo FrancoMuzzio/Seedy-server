@@ -322,21 +322,24 @@ exports.getMembers = async (req, res) => {
 };
 
 exports.getCategories = async (req, res) => {
-  const { limit = 5, page = 1 } = req.body;
+  const { limit, page } = req.body;
   const { community_id } = req.params;
 
   try {
-    const offset = (page - 1) * limit;
-    const { count, rows: categories } = await Category.findAndCountAll({
-      where: {
-        community_id,
-      },
-      limit,
-      offset,
+    let options = {
+      where: { community_id },
       attributes: ["id", "name", "description"],
       order: [["createdAt", "DESC"]],
-    });
-    const totalPages = Math.ceil(count / limit);
+    };
+
+    if (limit > 0) {
+      const offset = (page - 1) * limit;
+      options.limit = limit;
+      options.offset = offset;
+    }
+
+    const { count, rows: categories } = await Category.findAndCountAll(options);
+    const totalPages = limit > 0 ? Math.ceil(count / limit) : 1;
 
     if (count === 0) {
       return res
@@ -350,6 +353,7 @@ exports.getCategories = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 exports.checkCategoryName = async (req, res) => {
   try {
