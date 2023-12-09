@@ -6,6 +6,7 @@ const {
   Role,
   User,
   Op,
+  Sequelize,
 } = require("../models");
 
 exports.list = async (req, res) => {
@@ -42,7 +43,7 @@ exports.list = async (req, res) => {
   }
 };
 
-exports.checkName = async (req, res) => {
+exports.checkCommunityName = async (req, res) => {
   try {
     if (!req.body.name) {
       return res.status(400).json({
@@ -219,7 +220,9 @@ exports.getUserRole = async (req, res) => {
       });
     }
 
-    const role = await Role.findByPk(user_role.role_id, { attributes: ['id', 'name', 'display_name'] });
+    const role = await Role.findByPk(user_role.role_id, {
+      attributes: ["id", "name", "display_name"],
+    });
     if (!role) {
       return res.status(404).json({
         message: "Role not found",
@@ -234,7 +237,6 @@ exports.getUserRole = async (req, res) => {
     });
   }
 };
-
 
 exports.changeImage = async (req, res) => {
   try {
@@ -342,20 +344,69 @@ exports.getCategories = async (req, res) => {
   }
 };
 
+exports.checkCategoryName = async (req, res) => {
+  try {
+    if (!req.body.name) {
+      return res.status(400).json({
+        message: "Parameters missing: name not present",
+      });
+    }
+    const { name, ignore_category_id } = req.body;
+    const { community_id } = req.params;
+    let whereConditions = { name, community_id };
+    if (ignore_category_id) {
+      whereConditions.id = { [Op.ne]: ignore_category_id };
+    }
+    const category = await Category.findOne({ where: whereConditions });
+    if (category) {
+      res.status(409).json({ message: "Category name already exists" });
+    } else {
+      res.json({ message: "Category name is available" });
+    }
+  } catch (error) {
+    console.error("Error checking category name:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 exports.createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
     const { community_id } = req.params;
+
     if (!community_id || !name || !description) {
       return res.status(400).json({
-        message: "Parameters missing: name or community_id not present",
+        message:
+          "Parameters missing: name, description, or community_id not present",
       });
     }
+
+    const existingCategory = await Category.findOne({
+      where: {
+        [Op.and]: [
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("name")),
+            Sequelize.fn("LOWER", name)
+          ),
+          { community_id: community_id },
+        ],
+      },
+    });
+
+    if (existingCategory) {
+      return res.status(409).json({
+        message: "A category with this name already exists in the community",
+      });
+    }
+
     const category = await Category.create({
       name: name,
       description: description,
       community_id: community_id,
     });
+
     res.json({
       message: "Category registered successfully",
       id: category.id,
@@ -390,7 +441,7 @@ exports.getPosts = async (req, res) => {
       limit,
       offset,
       attributes: ["id", "title", "category_id", "createdAt"],
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
       include: [
         {
           model: Category,
