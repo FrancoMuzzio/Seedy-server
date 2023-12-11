@@ -328,8 +328,21 @@ exports.getCategories = async (req, res) => {
   try {
     let options = {
       where: { community_id },
-      attributes: ["id", "name", "description"],
-      order: [["createdAt", "DESC"]],
+      attributes: [
+        "id",
+        "name",
+        "description",
+        [
+          Sequelize.literal(`(
+        SELECT COUNT(*)
+        FROM Posts AS post
+        WHERE
+          post.category_id = Category.id
+      )`),
+          "postCount",
+        ],
+      ],
+      order: [["createdAt", "ASC"]],
     };
 
     if (limit > 0) {
@@ -353,7 +366,6 @@ exports.getCategories = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 exports.checkCategoryName = async (req, res) => {
   try {

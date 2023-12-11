@@ -640,10 +640,13 @@ router.get(
  *                     type: string
  *                   description:
  *                     type: string
+ *                   postCount:
+ *                     type: integer
  *             example:
  *               - id: 1
  *                 name: "Succulents"
  *                 description: "Everything about succulents"
+ *                 postCount: 325
  *       500:
  *         description: Error interno del servidor.
  *         content:
