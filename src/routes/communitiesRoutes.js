@@ -467,6 +467,78 @@ router.post(
 
 /**
  * @swagger
+ * /communities/category/:category_id/edit:
+ *   put:
+ *     summary: Edita una categoría
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: category_id
+ *         required: true
+ *         description: ID de la categoría a editar.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nuevo nombre de categoría.
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripcion de categoría.
+ *     responses:
+ *       200:
+ *         description: Categoría editada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *             example:
+ *               id: 1
+ *               name: "Mercado"
+ *               description: "Compra y venta de insumos"
+ *       404:
+ *         description: Categoría no encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Category not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error editing category"
+ */
+
+router.put("/communities/category/:category_id/edit", authenticateJWT, communitiesController.editCategory);
+
+/**
+ * @swagger
  * /communities/{community_id}/categories/check-name:
  *   post:
  *     summary: Verifica la disponibilidad del nombre de una categoria

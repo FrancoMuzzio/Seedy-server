@@ -442,6 +442,27 @@ exports.createCategory = async (req, res) => {
   }
 };
 
+exports.editCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const { category_id } = req.params;
+    const category = await Category.findOne({ where: { id: category_id } });
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
+    }
+
+    if (name) category.name = name;
+    if (description) category.description = description;
+
+    await category.save();
+
+    res.status(200).send(category);
+  } catch (error) {
+    console.error("Error editing category:", error);
+    res.status(500).send({ message: "Error editing category" });
+  }
+};
+
 exports.getPosts = async (req, res) => {
   const { category_id, limit = 5, page = 1 } = req.body;
   const { community_id } = req.params;
