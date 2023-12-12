@@ -85,7 +85,7 @@ router.get("/communities", authenticateJWT, communitiesController.list);
  *               properties:
  *                 message:
  *                   type: string
- *             example: 
+ *             example:
  *               message: "Community name is available"
  *       409:
  *         description: Nombre de comunidad ya en uso.
@@ -96,7 +96,7 @@ router.get("/communities", authenticateJWT, communitiesController.list);
  *               properties:
  *                 message:
  *                   type: string
- *             example: 
+ *             example:
  *               message: "Community name already exists"
  *       500:
  *         description: Error interno del servidor.
@@ -114,7 +114,7 @@ router.get("/communities", authenticateJWT, communitiesController.list);
 router.post(
   "/communities/check-name",
   authenticateJWT,
-  communitiesController.checkName
+  communitiesController.checkCommunityName
 );
 
 /**
@@ -373,12 +373,15 @@ router.post(
 
  */
 
-router.get("/communities/:community_id/user/:user_id/role", authenticateJWT, communitiesController.getUserRole);
-
+router.get(
+  "/communities/:community_id/user/:user_id/role",
+  authenticateJWT,
+  communitiesController.getUserRole
+);
 
 /**
  * @swagger
- * /communities/{community_id}/create-category:
+ * /communities/{community_id}/category/create:
  *   post:
  *     summary: Crea una categoría en una comunidad
  *     tags: [Communities]
@@ -421,6 +424,28 @@ router.get("/communities/:community_id/user/:user_id/role", authenticateJWT, com
  *             example:
  *               message: "Category created successfully"
  *               id: 4
+ *       400:
+ *         description: Parametros faltantes.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Parameters missing: name, description, or community_id not present"
+ *       409:
+ *         description: Categoria existente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "A category with this name already exists in the community"
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -435,9 +460,153 @@ router.get("/communities/:community_id/user/:user_id/role", authenticateJWT, com
  */
 
 router.post(
-  "/communities/:community_id/create-category",
+  "/communities/:community_id/category/create",
   authenticateJWT,
   communitiesController.createCategory
+);
+
+/**
+ * @swagger
+ * /communities/category/:category_id/edit:
+ *   put:
+ *     summary: Edita una categoría
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: category_id
+ *         required: true
+ *         description: ID de la categoría a editar.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nuevo nombre de categoría.
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripcion de categoría.
+ *     responses:
+ *       200:
+ *         description: Categoría editada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *             example:
+ *               id: 1
+ *               name: "Mercado"
+ *               description: "Compra y venta de insumos"
+ *       404:
+ *         description: Categoría no encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Category not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error editing category"
+ */
+
+router.put("/communities/category/:category_id/edit", authenticateJWT, communitiesController.editCategory);
+
+/**
+ * @swagger
+ * /communities/{community_id}/categories/check-name:
+ *   post:
+ *     summary: Verifica la disponibilidad del nombre de una categoria
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la comunidad.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nombre de la categoria a verificar.
+ *               ignore_category_id:
+ *                 type: string
+ *                 description: ID de la categoria a ignorar.
+ *     responses:
+ *       200:
+ *         description: Nombre de categoria disponible.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Catergory name is available"
+ *       409:
+ *         description: Nombre de categoria ya en uso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Category name already exists"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.post(
+  "/communities/:community_id/categories/check-name",
+  authenticateJWT,
+  communitiesController.checkCategoryName
 );
 
 /**
@@ -494,7 +663,6 @@ router.post(
  *               message: "Internal Server Error"
  */
 
-
 router.get(
   "/communities/:community_id/members",
   authenticateJWT,
@@ -504,7 +672,7 @@ router.get(
 /**
  * @swagger
  * /communities/{community_id}/categories:
- *   get:
+ *   post:
  *     summary: Obtiene las categorías de una comunidad
  *     tags: [Communities]
  *     security:
@@ -516,6 +684,18 @@ router.get(
  *         description: ID de la comunidad.
  *         schema:
  *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               page:
+ *                 type: integer
+ *                 description: Número de página.
+ *               limit:
+ *                 type: integer
+ *                 description: Maximo de items.
  *     responses:
  *       200:
  *         description: Categorías de la comunidad obtenidas con éxito.
@@ -532,10 +712,13 @@ router.get(
  *                     type: string
  *                   description:
  *                     type: string
+ *                   postCount:
+ *                     type: integer
  *             example:
  *               - id: 1
  *                 name: "Succulents"
  *                 description: "Everything about succulents"
+ *                 postCount: 325
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -549,7 +732,7 @@ router.get(
  *               message: "Internal Server Error"
  */
 
-router.get(
+router.post(
   "/communities/:community_id/categories",
   authenticateJWT,
   communitiesController.getCategories
@@ -557,12 +740,19 @@ router.get(
 
 /**
  * @swagger
- * /communities/posts:
+ * /communities/{community_id}/posts:
  *   post:
  *     summary: Obtiene los posts de una comunidad
  *     tags: [Communities]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la comunidad.
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -572,9 +762,6 @@ router.get(
  *             required:
  *               - community_id
  *             properties:
- *               community_id:
- *                 type: string
- *                 description: ID de la comunidad cuyos posts se quieren obtener.
  *               category_id:
  *                 type: string
  *                 description: ID de la categoria cuyos posts se quieren obtener.
@@ -643,7 +830,7 @@ router.get(
  *                 - id: 1
  *                   title: "Better care for your cacti"
  *                   category_id: 1
- *                   category: 
+ *                   category:
  *                     name: "general"
  *                   createdAt: "2023-04-12T15:00:00Z"
  *                   user:  # Ejemplo de objeto de usuario
@@ -670,7 +857,7 @@ router.get(
  */
 
 router.post(
-  "/communities/posts",
+  "/communities/:community_id/posts",
   authenticateJWT,
   communitiesController.getPosts
 );
@@ -842,7 +1029,7 @@ router.post(
  *             example:
  *               message: "Internal Server Error"
  */
-            
+
 router.delete(
   "/communities/:communityId",
   authenticateJWT,

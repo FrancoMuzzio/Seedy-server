@@ -6,6 +6,7 @@ const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const sequelize = require('../config/database'); // Esta es la instancia de Sequelize que debes usar
 const db = {};
+const Op = Sequelize.Op;
 
 fs
   .readdirSync(__dirname)
@@ -30,5 +31,6 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+db.Op = Op;
 
 module.exports = db;
