@@ -539,6 +539,110 @@ router.put("/communities/category/:category_id/edit", authenticateJWT, communiti
 
 /**
  * @swagger
+ * /communities/category/{category_id}:
+ *   delete:
+ *     summary: Elimina una categoría específica
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: category_id
+ *         required: true
+ *         description: ID de la categoría a eliminar.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Categoría eliminada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Category deleted successfully"
+ *       404:
+ *         description: Categoría no encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Category not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error editing category"
+ */
+
+router.delete("/communities/category/:category_id", authenticateJWT, communitiesController.deleteCategory);
+
+/**
+ * @swagger
+ * /communities/category/posts/migrate:
+ *   put:
+ *     summary: Migra los posts de una categoría a otra
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - from_category_id
+ *               - to_category_id
+ *             properties:
+ *               from_category_id:
+ *                 type: integer
+ *                 description: ID de la categoría desde la cual se migrarán los posts.
+ *               to_category_id:
+ *                 type: integer
+ *                 description: ID de la categoría a la cual se migrarán los posts.
+ *     responses:
+ *       200:
+ *         description: Posts migrados exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Posts migrated successfully"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error editing category"
+ */
+
+router.put("/communities/category/posts/migrate", authenticateJWT, communitiesController.migratePosts);
+
+/**
+ * @swagger
  * /communities/{community_id}/categories/check-name:
  *   post:
  *     summary: Verifica la disponibilidad del nombre de una categoria

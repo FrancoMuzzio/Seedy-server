@@ -463,6 +463,37 @@ exports.editCategory = async (req, res) => {
   }
 };
 
+exports.deleteCategory = async (req, res) => {
+  try {
+    const { category_id } = req.params;
+    const category = await Category.findOne({ where: { id: category_id } });
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
+    } else {
+      await category.destroy();
+      res.status(200).send({ message: "Category deleted successfully" });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Error deleting category" });
+  }
+};
+
+exports.migratePosts = async (req, res) => {
+  const { from_category_id, to_category_id } = req.body;
+
+  try {
+    await Post.update(
+      { category_id: to_category_id },
+      { where: { category_id: from_category_id } }
+    );
+
+    res.status(200).json({ message: "Posts migrated successfully" });
+  } catch (error) {
+    console.error("Error migrating posts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 exports.getPosts = async (req, res) => {
   const { category_id, limit = 5, page = 1 } = req.body;
   const { community_id } = req.params;
