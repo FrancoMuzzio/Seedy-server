@@ -6,6 +6,7 @@ const {
   Role,
   User,
   Op,
+  Comment,
   Sequelize,
 } = require("../models");
 
@@ -602,6 +603,79 @@ exports.createPost = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating community post:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.createComment = async (req, res) => {
+  try {
+    const { content } = req.body;
+    const { post_id } = req.params;
+    const user_id = req.user.id;
+    if (!content || !post_id) {
+      return res.status(400).json({
+        message: "Parameters missing: content or post_id not present",
+      });
+    }
+    const comment = await Comment.create({
+      content,
+      post_id,
+      user_id,
+    });
+    res.json({
+      message: "Comment registered successfully",
+      id: comment.id,
+    });
+  } catch (error) {
+    console.error("Error creating community post:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getComment = async (req, res) => {
+  try {
+    const { community_id, post_id } = req.params;
+    if (!post_id) {
+      return res.status(400).json({
+        message: "Parameters missing: post_id not present",
+      });
+    }
+    const comments = await Comment.findAndCountAll({
+      where: { post_id: post_id },
+      order: [["createdAt", "ASC"]],
+      attributes: ["content", "createdAt"],
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["username", "picture"],
+          include: [
+            {
+              model: UserCommunity,
+              as: "userCommunities",
+              attributes: ["role_id"],
+              where: {
+                community_id: community_id,
+              },
+              include: [
+                {
+                  model: Role,
+                  as: "role",
+                  attributes: ["name"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    res.json(comments);
+  } catch (error) {
+    console.error("Error fetching comments:", error);
     res.status(500).json({
       message: "Internal Server Error",
     });

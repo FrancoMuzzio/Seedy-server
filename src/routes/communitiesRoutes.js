@@ -1140,4 +1140,201 @@ router.delete(
   communitiesController.deleteCommunity
 );
 
+/**
+ * @swagger
+ * /communities/posts/{post_id}/comments/create:
+ *   post:
+ *     summary: Crea un nuevo comentario
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: Contenido del comentario
+ *     responses:
+ *       200:
+ *         description: Comentario creado con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 id:
+ *                   type: integer
+ *             example:
+ *               message: "Comment registered successfully"
+ *               id: 2
+ *       400:
+ *         description: Parámetros faltantes o incorrectos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Parameters missing: ..."
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.post(
+  "/communities/posts/:post_id/comments/create",
+  authenticateJWT,
+  communitiesController.createComment
+);
+
+/**
+ * @swagger
+ * /communities/{community_id}/posts/{post_id}/comments:
+ *   get:
+ *     tags: [Communities]
+ *     summary: Obtiene los comentarios de un post específico en una comunidad
+ *     description: >
+ *       Este endpoint devuelve todos los comentarios asociados a un post específico dentro de una comunidad, incluyendo detalles del usuario que hizo cada comentario.
+ *     parameters:
+ *       - name: community_id
+ *         in: path
+ *         required: true
+ *         description: ID de la comunidad
+ *         type: integer
+ *       - name: post_id
+ *         in: path
+ *         required: true
+ *         description: ID del post
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de comentarios obtenida con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *                   description: Número total de comentarios
+ *                 rows:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       content:
+ *                         type: string
+ *                         description: Contenido del comentario
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Fecha y hora de creación del comentario
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           username:
+ *                             type: string
+ *                             description: Nombre de usuario del autor del comentario
+ *                           picture:
+ *                             type: string
+ *                             description: URL de la imagen de perfil del usuario
+ *                           userCommunities:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 role_id:
+ *                                   type: integer
+ *                                   description: ID del rol del usuario en la comunidad
+ *                                 role:
+ *                                   type: object
+ *                                   properties:
+ *                                     name:
+ *                                       type: string
+ *                                       description: Nombre del rol
+ *             examples:
+ *               application/json:
+ *                 value: {
+ *                   "count": 2,
+ *                   "rows": [
+ *                     {
+ *                       "content": "<div>Test</div>",
+ *                       "createdAt": "2023-12-14T15:51:54.000Z",
+ *                       "user": {
+ *                         "username": "FrancoMuzzio",
+ *                         "picture": "/uploads/users/1/pp_1702335743611.jpg",
+ *                         "userCommunities": [
+ *                           {
+ *                             "role_id": 1,
+ *                             "role": {
+ *                               "name": "community_founder"
+ *                             }
+ *                           }
+ *                         ]
+ *                       }
+ *                     },
+ *                     {
+ *                       "content": "<div>Test</div>",
+ *                       "createdAt": "2023-12-14T15:50:58.000Z",
+ *                       "user": {
+ *                         "username": "FrancoMuzzio",
+ *                         "picture": "/uploads/users/1/pp_1702335743611.jpg",
+ *                         "userCommunities": [
+ *                           {
+ *                             "role_id": 1,
+ *                             "role": {
+ *                               "name": "community_founder"
+ *                             }
+ *                           }
+ *                         ]
+ *                       }
+ *                     }
+ *                   ]
+ *                 }
+ *       400:
+ *         description: Parámetros faltantes o incorrectos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Parameters missing: ..."
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+
+router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT, communitiesController.getComment);
+
+
 module.exports = router;
