@@ -7,6 +7,7 @@ const {
   User,
   Op,
   Comment,
+  CommentReaction,
   Sequelize,
 } = require("../models");
 
@@ -571,7 +572,21 @@ exports.getPost = async (req, res) => {
         message: "Parameters missing: post_id not present",
       });
     }
-    const post = await Post.findByPk(post_id);
+    const post = await Post.findByPk(post_id, {
+      attributes: ['id', 'title', 'content', 'category_id', 'createdAt'],
+      include: [{
+        model: User, 
+        as: 'user', 
+        attributes: ['id', 'username', 'picture'],
+      }],
+    });
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
     res.json(post);
   } catch (error) {
     console.error("Error fetching post:", error);
@@ -636,7 +651,7 @@ exports.createComment = async (req, res) => {
   }
 };
 
-exports.getComment = async (req, res) => {
+exports.getComments = async (req, res) => {
   try {
     const { community_id, post_id } = req.params;
     if (!post_id) {
@@ -647,7 +662,7 @@ exports.getComment = async (req, res) => {
     const comments = await Comment.findAndCountAll({
       where: { post_id: post_id },
       order: [["createdAt", "ASC"]],
-      attributes: ["content", "createdAt"],
+      attributes: ["id", "content", "createdAt"],
       include: [
         {
           model: User,
@@ -671,11 +686,55 @@ exports.getComment = async (req, res) => {
             },
           ],
         },
+        {
+          model: CommentReaction,
+          as: "commentReactions",
+          attributes: ["user_id", "reaction_type"],
+        },
       ],
     });
     res.json(comments);
   } catch (error) {
     console.error("Error fetching comments:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.reactComment = async (req, res) => {
+  try {
+    const { type, comment_id } = req.body;
+    const user_id = req.user.id;
+
+    if (!type || !comment_id) {
+      return res.status(400).json({
+        message: "Parameters missing: type or comment_id not present",
+      });
+    }
+
+    const existingReaction = await CommentReaction.findOne({
+      where: { comment_id: comment_id, user_id: user_id },
+    });
+
+    if (existingReaction) {
+      if (existingReaction.reaction_type === type) {
+        await existingReaction.destroy();
+        res.status(200).json({ message: "Reaction removed" });
+      } else {
+        await existingReaction.update({ reaction_type: type });
+        res.status(200).json({ message: "Reaction updated" });
+      }
+    } else {
+      await CommentReaction.create({
+        comment_id: comment_id,
+        user_id: user_id,
+        reaction_type: type,
+      });
+      res.status(201).json({ message: "Reaction created" });
+    }
+  } catch (error) {
+    console.error("Error reacting to comment:", error);
     res.status(500).json({
       message: "Internal Server Error",
     });

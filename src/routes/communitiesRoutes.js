@@ -1240,6 +1240,9 @@ router.post(
  *                   items:
  *                     type: object
  *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: id del comentario
  *                       content:
  *                         type: string
  *                         description: Contenido del comentario
@@ -1270,12 +1273,24 @@ router.post(
  *                                     name:
  *                                       type: string
  *                                       description: Nombre del rol
+ *                       commentReactions:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             user_id:
+ *                               type: integer
+ *                               description: id del usuario que reacciono al comentario
+ *                             type:
+ *                               type: string
+ *                               description: tipo de reacción
  *             examples:
  *               application/json:
  *                 value: {
  *                   "count": 2,
  *                   "rows": [
  *                     {
+ *                       "id": 1,
  *                       "content": "<div>Test</div>",
  *                       "createdAt": "2023-12-14T15:51:54.000Z",
  *                       "user": {
@@ -1289,9 +1304,16 @@ router.post(
  *                             }
  *                           }
  *                         ]
- *                       }
+ *                       },
+ *                       "commentReactions": [
+ *                         {
+ *                           "user_id": 1,
+ *                           "type": "like",
+ *                         }
+ *                       ]
  *                     },
  *                     {
+ *                       "id": 2,
  *                       "content": "<div>Test</div>",
  *                       "createdAt": "2023-12-14T15:50:58.000Z",
  *                       "user": {
@@ -1305,7 +1327,13 @@ router.post(
  *                             }
  *                           }
  *                         ]
- *                       }
+ *                       },
+ *                       "commentReactions": [
+ *                         {
+ *                           "user_id": 1,
+ *                           "type": "like",
+ *                         }
+ *                       ]
  *                     }
  *                   ]
  *                 }
@@ -1334,7 +1362,73 @@ router.post(
  */
 
 
-router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT, communitiesController.getComment);
+router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT, communitiesController.getComments);
 
+/**
+ * @swagger
+ * /communities/posts/comments/react:
+ *   post:
+ *     summary: Reaccionar a un comentario.
+ *     description: Permite a un usuario darle me gusta o no a un comentario. Si el mismo usuario vuelve a enviar el mismo tipo de reacción, se eliminará la reacción.
+ *     tags: [Communities]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               comment_id:
+ *                 type: integer
+ *                 description: The ID of the comment to react to.
+ *                 example: 1
+ *               type:
+ *                 type: string
+ *                 description: The type of reaction ("like" or "dislike").
+ *                 example: "like"
+ *     responses:
+ *       200:
+ *         description: Reacción actualizada o eliminada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reaction removed"
+ *       201:
+ *         description: La reacción se creó con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reaction created"
+ *       400:
+ *         description: Parámetros faltantes o no válidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Parameters missing: type or comment_id not present"
+ *       500:
+ *         description: Error Interno del Servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+
+router.post("/communities/posts/comments/react", authenticateJWT, communitiesController.reactComment);
 
 module.exports = router;
