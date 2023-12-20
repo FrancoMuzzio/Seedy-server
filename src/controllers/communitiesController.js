@@ -98,19 +98,19 @@ exports.create = async (req, res) => {
 
 exports.deleteCommunity = async (req, res) => {
   try {
-    const communityId = req.params.communityId;
+    const community_id = req.params.community_id;
 
-    if (!communityId) {
+    if (!community_id) {
       return res.status(400).json({
-        message: "Parameters missing: communityId not present",
+        message: "Parameters missing: community_id not present",
       });
     }
-    const userId = req.user.id;
+    const user_id = req.user.id;
 
     const userCommunity = await UserCommunity.findOne({
       where: {
-        user_id: userId,
-        community_id: communityId,
+        user_id: user_id,
+        community_id,
       },
       include: [
         {
@@ -130,7 +130,7 @@ exports.deleteCommunity = async (req, res) => {
       });
     }
 
-    const community = await Community.findByPk(communityId);
+    const community = await Community.findByPk(community_id);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
@@ -407,7 +407,7 @@ exports.createCategory = async (req, res) => {
             Sequelize.fn("LOWER", Sequelize.col("name")),
             Sequelize.fn("LOWER", name)
           ),
-          { community_id: community_id },
+          { community_id },
         ],
       },
     });
@@ -421,7 +421,7 @@ exports.createCategory = async (req, res) => {
     const category = await Category.create({
       name: name,
       description: description,
-      community_id: community_id,
+      community_id,
     });
 
     res.json({
@@ -488,6 +488,24 @@ exports.migratePosts = async (req, res) => {
   }
 };
 
+exports.getPostContentById = async (req, res) => {
+  const { post_id } = req.params;
+  try {
+    const post = await Post.findByPk(post_id, {
+      attributes: ["content"],
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    res.status(200).json({ content: post.content });
+  } catch (error) {
+    console.error("Error fetching post content:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 exports.getPosts = async (req, res) => {
   const { category_id, limit = 5, page = 1 } = req.body;
   const { community_id } = req.params;
@@ -528,7 +546,7 @@ exports.getPosts = async (req, res) => {
               as: "userCommunities",
               attributes: ["role_id"],
               where: {
-                community_id: community_id,
+                community_id,
               },
               include: [
                 {
@@ -565,29 +583,31 @@ exports.getPost = async (req, res) => {
       });
     }
     const post = await Post.findByPk(post_id, {
-      attributes: ['id', 'title', 'content', 'category_id', 'createdAt'],
-      include: [{
-        model: User, 
-        as: 'user', 
-        attributes: ['id', 'username', 'picture'],
-        include: [
-          {
-            model: UserCommunity,
-            as: "userCommunities",
-            attributes: ["role_id"],
-            where: {
-              community_id: community_id,
-            },
-            include: [
-              {
-                model: Role,
-                as: "role",
-                attributes: ["name"],
+      attributes: ["id", "title", "content", "category_id", "createdAt"],
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "picture"],
+          include: [
+            {
+              model: UserCommunity,
+              as: "userCommunities",
+              attributes: ["role_id"],
+              where: {
+                community_id,
               },
-            ],
-          },
-        ],
-      }],
+              include: [
+                {
+                  model: Role,
+                  as: "role",
+                  attributes: ["name"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
 
     if (!post) {
@@ -630,6 +650,43 @@ exports.createPost = async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+exports.editPost = async (req, res) => {
+  try {
+    const { title, content, category_id } = req.body;
+    const { post_id } = req.params;
+    const post = await Post.findOne({ where: { id: post_id } });
+    if (!post) {
+      return res.status(404).send({ message: "Post not found" });
+    }
+
+    if (title) post.title = title;
+    if (content) post.content = content;
+    if (category_id) post.category_id = category_id;
+
+    await post.save();
+
+    res.status(200).send(post);
+  } catch (error) {
+    console.error("Error editing post:", error);
+    res.status(500).send({ message: "Error editing post" });
+  }
+};
+
+exports.deletePost = async (req, res) => {
+  try {
+    const { post_id } = req.params;
+    const post = await Post.findOne({ where: { id: post_id } });
+    if (!post) {
+      return res.status(404).send({ message: "Post not found" });
+    } else {
+      await post.destroy();
+      res.status(200).send({ message: "Post deleted successfully" });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Error deleting post" });
   }
 };
 
@@ -683,7 +740,7 @@ exports.getComments = async (req, res) => {
               as: "userCommunities",
               attributes: ["role_id"],
               where: {
-                community_id: community_id,
+                community_id,
               },
               include: [
                 {
@@ -761,7 +818,7 @@ exports.deleteComment = async (req, res) => {
       res.status(200).send({ message: "Comment deleted successfully" });
     }
   } catch (error) {
-    console.log(error)
+    console.error(error);
     res.status(500).send({ message: "Error deleting comment" });
   }
 };

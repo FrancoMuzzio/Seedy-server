@@ -257,10 +257,10 @@ router.put(
  *           schema:
  *             type: object
  *             required:
- *               - userId
+ *               - user_id
  *               - role
  *             properties:
- *               userId:
+ *               user_id:
  *                 type: string
  *                 description: ID del usuario al que se le asignará el rol.
  *               role:
@@ -968,6 +968,64 @@ router.post(
 
 /**
  * @swagger
+ * /communities/posts/{post_id}/content:
+ *   get:
+ *     tags: [Communities]
+ *     summary: Obtiene el contenido de un post específico
+ *     description: Devuelve el contenido del post identificado por su ID.
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: El ID del post
+ *     responses:
+ *       200:
+ *         description: Contenido del post obtenido con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 content:
+ *                   type: string
+ *             examples:
+ *               responseExample:
+ *                 value: 
+ *                   content: "<div>Contenido del post</div>"
+ *       404:
+ *         description: Post no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               responseExample:
+ *                 value: 
+ *                   message: "Post not found."
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               responseExample:
+ *                 value: 
+ *                   message: "Internal Server Error"
+ */
+
+router.get('/communities/posts/:post_id/content', communitiesController.getPostContentById);
+
+/**
+ * @swagger
  * /communities/{community_id}/post/{post_id}:
  *   get:
  *     summary: Obtiene la publicación con el ID requerido
@@ -1125,6 +1183,136 @@ router.post(
 
 /**
  * @swagger
+ * /communities/posts/{post_id}/edit:
+ *   put:
+ *     summary: Edita una publicación
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         description: ID de la publicación a editar.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Nuevo titulo de publicación.
+ *               content:
+ *                 type: string
+ *                 description: Nuevo contenido de publicación.
+ *               category_id:
+ *                 type: integer
+ *                 description: id de nueva categoria de publicación.
+ *     responses:
+ *       200:
+ *         description: Publicación editada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *             example:
+ *               id: 1
+ *               title: "Como trasplantar cactus"
+ *               content: "<h1>Ayuda por favor</h1><div>Quiero saber como trasplantar mis cactus!!!</div>"
+ *               category_id: 1
+ *       404:
+ *         description: Categoría no encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Post not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error editing post"
+ */
+
+router.put("/communities/posts/:post_id/edit", authenticateJWT, communitiesController.editPost);
+
+
+/**
+ * @swagger
+ * /communities/posts/{post_id}:
+ *   delete:
+ *     summary: Elimina una publicación específica
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         description: ID de la publicación a eliminar.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Publicación eliminada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Post deleted successfully"
+ *       404:
+ *         description: Publicación no encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Post not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error deleting comment"
+ */
+
+router.delete("/communities/posts/:post_id", authenticateJWT, communitiesController.deletePost);
+
+/**
+ * @swagger
  * /communities/{community_id}:
  *   delete:
  *     summary: Elimina una comunidad
@@ -1133,7 +1321,7 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: communityId
+ *         name: community_id
  *         required: true
  *         description: ID de la comunidad a eliminar.
  *         schema:
@@ -1164,7 +1352,7 @@ router.post(
  */
 
 router.delete(
-  "/communities/:communityId",
+  "/communities/:community_id",
   authenticateJWT,
   communitiesController.deleteCommunity
 );
@@ -1284,7 +1472,7 @@ router.post(
  *                         properties:
  *                           id:
  *                             type: integer
- *                             description: Id del usuario que escribnio el comentario
+ *                             description: id del usuario que escribnio el comentario
  *                           username:
  *                             type: string
  *                             description: Nombre de usuario del autor del comentario

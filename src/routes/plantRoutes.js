@@ -360,7 +360,7 @@ router.get(
 
 /**
  * @swagger
- * /plant/getUserPlants/{userId}:
+ * /plant/getUserPlants/{user_id}:
  *   get:
  *     summary: Obtiene las plantas asociadas a un usuario
  *     tags: [Plant]
@@ -368,7 +368,7 @@ router.get(
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: user_id
  *         required: true
  *         description: ID del usuario.
  *         schema:
@@ -426,7 +426,7 @@ router.get(
  */
 
 router.get(
-  "/plant/getUserPlants/:userId",
+  "/plant/getUserPlants/:user_id",
   authenticateJWT,
   plantsController.getUserPlants
 );

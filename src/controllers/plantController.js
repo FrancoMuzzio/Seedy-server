@@ -101,11 +101,11 @@ exports.associate = async (req, res) => {
 
 exports.dissociate = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const user_id = req.user.id;
     const plantId = req.params.plantId;
     const deletionResult = await UserPlant.destroy({
       where: {
-        user_id: userId,
+        user_id: user_id,
         plant_id: plantId,
       },
     });
@@ -132,12 +132,12 @@ exports.dissociate = async (req, res) => {
 
 exports.isPlantAssociatedWithUser = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const user_id = req.user.id;
     const plantId = req.params.plantId;
 
     const association = await UserPlant.findOne({
       where: {
-        user_id: userId,
+        user_id: user_id,
         plant_id: plantId,
       },
     });
@@ -180,10 +180,10 @@ exports.getPlantIdByName = async (req, res) => {
 
 exports.getUserPlants = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const user_id = req.params.user_id;
 
     const userPlants = await UserPlant.findAll({
-      where: { user_id: userId },
+      where: { user_id: user_id },
       attributes: ["plant_id"],
     });
 

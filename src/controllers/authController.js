@@ -92,7 +92,6 @@ exports.forgotPassword = async (req, res) => {
 
   // Generar token
   user.resetPasswordToken = crypto.randomBytes(20).toString("hex");
-  console.log("Token generado:", user.resetPasswordToken);
   user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
   await user.save();
 
@@ -113,12 +112,12 @@ exports.forgotPassword = async (req, res) => {
   // Enviar correo
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.log("Error al enviar el correo:", error);
+      console.error("Error al enviar el correo:", error);
       return res
         .status(500)
         .send({ message: "Error sending reset email." });
     } else {
-      console.log("Correo enviado:", info.response);
+      console.info("Correo enviado:", info.response);
       return res.json({
         message: "Email sent with instructions to reset password",
       });
