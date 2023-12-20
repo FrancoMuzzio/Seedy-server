@@ -585,7 +585,7 @@ router.put("/communities/category/:category_id/edit", authenticateJWT, communiti
  *                 message:
  *                   type: string
  *             example:
- *               message: "Error editing category"
+ *               message: "Error deleting category"
  */
 
 router.delete("/communities/category/:category_id", authenticateJWT, communitiesController.deleteCategory);
@@ -937,7 +937,7 @@ router.post(
  *                   category:
  *                     name: "general"
  *                   createdAt: "2023-04-12T15:00:00Z"
- *                   user:  # Ejemplo de objeto de usuario
+ *                   user:  
  *                     id: 2
  *                     username: "JohnDoe"
  *                     email: "johndoe@example.com"
@@ -968,13 +968,19 @@ router.post(
 
 /**
  * @swagger
- * /communities/post/{post_id}:
+ * /communities/{community_id}/post/{post_id}:
  *   get:
  *     summary: Obtiene la publicación con el ID requerido
  *     tags: [Communities]
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la communidad.
+ *         schema:
+ *           type: string
  *       - in: path
  *         name: post_id
  *         required: true
@@ -995,24 +1001,47 @@ router.post(
  *                   type: string
  *                 content:
  *                   type: string
- *                 user_id:
- *                   type: integer
  *                 category_id:
  *                   type: integer
  *                 createdAt:
  *                   type: string
  *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                    id:
+ *                      type: integer
+ *                    username:
+ *                      type: string
+ *                    picture:
+ *                      type: string
+ *                    userCommunities:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        properties:
+ *                          role_id:
+ *                            type: integer
+ *                          role:
+ *                            type: object
+ *                            properties:
+ *                              name:
+ *                                type: string
  *             example:
  *                 id: 1
  *                 title: "Tipos de suculentas"
  *                 content: "<div>lorem ipsum</div>"
- *                 user_id: 1
  *                 category_id: 1
  *                 createdAt: "2023-12-05 22:22:11"
- *                 updatedAt: "2023-12-05 22:22:11"
+ *                 user: 
+ *                   id: 2
+ *                   username: "JohnDoe"
+ *                   picture: "/path/to/profile/picture.jpg"
+ *                   userCommunities:
+ *                     - role_id: 1
+ *                       role:
+ *                         name: "community_founder"
+
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -1027,7 +1056,7 @@ router.post(
  */
 
 router.get(
-  "/communities/posts/:post_id",
+  "/communities/:community_id/posts/:post_id",
   authenticateJWT,
   communitiesController.getPost
 );
@@ -1139,5 +1168,354 @@ router.delete(
   authenticateJWT,
   communitiesController.deleteCommunity
 );
+
+/**
+ * @swagger
+ * /communities/posts/{post_id}/comments/create:
+ *   post:
+ *     summary: Crea un nuevo comentario
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: Contenido del comentario
+ *     responses:
+ *       200:
+ *         description: Comentario creado con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 id:
+ *                   type: integer
+ *             example:
+ *               message: "Comment registered successfully"
+ *               id: 2
+ *       400:
+ *         description: Parámetros faltantes o incorrectos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Parameters missing: ..."
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+router.post(
+  "/communities/posts/:post_id/comments/create",
+  authenticateJWT,
+  communitiesController.createComment
+);
+
+/**
+ * @swagger
+ * /communities/{community_id}/posts/{post_id}/comments:
+ *   get:
+ *     tags: [Communities]
+ *     summary: Obtiene los comentarios de un post específico en una comunidad
+ *     description: >
+ *       Este endpoint devuelve todos los comentarios asociados a un post específico dentro de una comunidad, incluyendo detalles del usuario que hizo cada comentario.
+ *     parameters:
+ *       - name: community_id
+ *         in: path
+ *         required: true
+ *         description: ID de la comunidad
+ *         type: integer
+ *       - name: post_id
+ *         in: path
+ *         required: true
+ *         description: ID del post
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de comentarios obtenida con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *                   description: Número total de comentarios
+ *                 rows:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: id del comentario
+ *                       content:
+ *                         type: string
+ *                         description: Contenido del comentario
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Fecha y hora de creación del comentario
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             description: Id del usuario que escribnio el comentario
+ *                           username:
+ *                             type: string
+ *                             description: Nombre de usuario del autor del comentario
+ *                           picture:
+ *                             type: string
+ *                             description: URL de la imagen de perfil del usuario
+ *                           userCommunities:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 role_id:
+ *                                   type: integer
+ *                                   description: ID del rol del usuario en la comunidad
+ *                                 role:
+ *                                   type: object
+ *                                   properties:
+ *                                     name:
+ *                                       type: string
+ *                                       description: Nombre del rol
+ *                       commentReactions:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             user_id:
+ *                               type: integer
+ *                               description: id del usuario que reacciono al comentario
+ *                             type:
+ *                               type: string
+ *                               description: tipo de reacción
+ *             examples:
+ *               application/json:
+ *                 value: {
+ *                   "count": 2,
+ *                   "rows": [
+ *                     {
+ *                       "id": 1,
+ *                       "content": "<div>Test</div>",
+ *                       "createdAt": "2023-12-14T15:51:54.000Z",
+ *                       "user": {
+ *                         "id": 2,
+ *                         "username": "FrancoMuzzio",
+ *                         "picture": "/uploads/users/1/pp_1702335743611.jpg",
+ *                         "userCommunities": [
+ *                           {
+ *                             "role_id": 1,
+ *                             "role": {
+ *                               "name": "community_founder"
+ *                             }
+ *                           }
+ *                         ]
+ *                       },
+ *                       "commentReactions": [
+ *                         {
+ *                           "user_id": 1,
+ *                           "type": "like",
+ *                         }
+ *                       ]
+ *                     },
+ *                     {
+ *                       "id": 2,
+ *                       "content": "<div>Test</div>",
+ *                       "createdAt": "2023-12-14T15:50:58.000Z",
+ *                       "user": {
+ *                         "id": 2,
+ *                         "username": "FrancoMuzzio",
+ *                         "picture": "/uploads/users/1/pp_1702335743611.jpg",
+ *                         "userCommunities": [
+ *                           {
+ *                             "role_id": 1,
+ *                             "role": {
+ *                               "name": "community_founder"
+ *                             }
+ *                           }
+ *                         ]
+ *                       },
+ *                       "commentReactions": [
+ *                         {
+ *                           "user_id": 1,
+ *                           "type": "like",
+ *                         }
+ *                       ]
+ *                     }
+ *                   ]
+ *                 }
+ *       400:
+ *         description: Parámetros faltantes o incorrectos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *                 message: "Parameters missing: ..."
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Internal Server Error"
+ */
+
+
+router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT, communitiesController.getComments);
+
+/**
+ * @swagger
+ * /communities/posts/comments/react:
+ *   post:
+ *     summary: Reaccionar a un comentario.
+ *     description: Permite a un usuario darle me gusta o no a un comentario. Si el mismo usuario vuelve a enviar el mismo tipo de reacción, se eliminará la reacción.
+ *     tags: [Communities]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               comment_id:
+ *                 type: integer
+ *                 description: The ID of the comment to react to.
+ *                 example: 1
+ *               type:
+ *                 type: string
+ *                 description: The type of reaction ("like" or "dislike").
+ *                 example: "like"
+ *     responses:
+ *       200:
+ *         description: Reacción actualizada o eliminada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reaction removed"
+ *       201:
+ *         description: La reacción se creó con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reaction created"
+ *       400:
+ *         description: Parámetros faltantes o no válidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Parameters missing: type or comment_id not present"
+ *       500:
+ *         description: Error Interno del Servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+
+router.post("/communities/posts/comments/react", authenticateJWT, communitiesController.reactComment);
+
+/**
+ * @swagger
+ * /communities/posts/comments/{comment_id}:
+ *   delete:
+ *     summary: Elimina un comentario específico
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: comment_id
+ *         required: true
+ *         description: ID del comentario a eliminar.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comentario eliminado exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Comment deleted successfully"
+ *       404:
+ *         description: Comentario no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Comment not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error deleting comment"
+ */
+
+router.delete("/communities/posts/comments/:comment_id", authenticateJWT, communitiesController.deleteComment);
 
 module.exports = router;
