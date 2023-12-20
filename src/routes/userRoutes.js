@@ -5,7 +5,7 @@ const authenticateJWT = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
- * /user/{userId}/edit:
+ * /user/{user_id}/edit:
  *   put:
  *     summary: Edita un usuario
  *     tags: [User]
@@ -13,7 +13,7 @@ const authenticateJWT = require("../middlewares/authMiddleware");
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: user_id
  *         required: true
  *         description: ID del usuario a editar.
  *         schema:
@@ -79,6 +79,6 @@ const authenticateJWT = require("../middlewares/authMiddleware");
  *               message: "Error editing user"
  */
 
-router.put("/user/:userId/edit", authenticateJWT, userController.edit);
+router.put("/user/:user_id/edit", authenticateJWT, userController.edit);
 
 module.exports = router;
