@@ -130,18 +130,11 @@ exports.deleteCommunity = async (req, res) => {
       });
     }
 
-    // Encuentra la comunidad por su ID
     const community = await Community.findByPk(communityId);
-
-    // Si no existe la comunidad, devuelve un error
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
-
-    // Elimina la comunidad
     await community.destroy();
-
-    // Envía una respuesta confirmando la eliminación
     res.status(200).json({ message: "Community deleted successfully" });
   } catch (error) {
     console.error("Error deleting community:", error);
@@ -160,7 +153,6 @@ exports.giveUserCommunityRole = async (req, res) => {
         message: "Parameters missing: user_id, or role_name not present",
       });
     }
-    // Buscar el role_id basado en el role_name
     const role = await Role.findOne({
       where: { name: role_name },
     });
@@ -566,7 +558,7 @@ exports.getPosts = async (req, res) => {
 
 exports.getPost = async (req, res) => {
   try {
-    const { post_id } = req.params;
+    const { community_id, post_id } = req.params;
     if (!post_id) {
       return res.status(400).json({
         message: "Parameters missing: post_id not present",
@@ -578,6 +570,23 @@ exports.getPost = async (req, res) => {
         model: User, 
         as: 'user', 
         attributes: ['id', 'username', 'picture'],
+        include: [
+          {
+            model: UserCommunity,
+            as: "userCommunities",
+            attributes: ["role_id"],
+            where: {
+              community_id: community_id,
+            },
+            include: [
+              {
+                model: Role,
+                as: "role",
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
       }],
     });
 
@@ -738,5 +747,21 @@ exports.reactComment = async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const { comment_id } = req.params;
+    const comment = await Comment.findOne({ where: { id: comment_id } });
+    if (!comment) {
+      return res.status(404).send({ message: "Comment not found" });
+    } else {
+      await comment.destroy();
+      res.status(200).send({ message: "Comment deleted successfully" });
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ message: "Error deleting comment" });
   }
 };

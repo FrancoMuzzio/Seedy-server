@@ -15,7 +15,8 @@ module.exports = {
         references: {
           model: 'Comments', 
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE'
       },
       user_id: {
         type: Sequelize.INTEGER,
@@ -23,7 +24,8 @@ module.exports = {
         references: {
           model: 'Users',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE'
       },
       reaction_type: {
         type: Sequelize.ENUM,

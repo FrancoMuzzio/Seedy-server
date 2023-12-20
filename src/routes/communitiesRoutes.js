@@ -585,7 +585,7 @@ router.put("/communities/category/:category_id/edit", authenticateJWT, communiti
  *                 message:
  *                   type: string
  *             example:
- *               message: "Error editing category"
+ *               message: "Error deleting category"
  */
 
 router.delete("/communities/category/:category_id", authenticateJWT, communitiesController.deleteCategory);
@@ -937,7 +937,7 @@ router.post(
  *                   category:
  *                     name: "general"
  *                   createdAt: "2023-04-12T15:00:00Z"
- *                   user:  # Ejemplo de objeto de usuario
+ *                   user:  
  *                     id: 2
  *                     username: "JohnDoe"
  *                     email: "johndoe@example.com"
@@ -968,13 +968,19 @@ router.post(
 
 /**
  * @swagger
- * /communities/post/{post_id}:
+ * /communities/{community_id}/post/{post_id}:
  *   get:
  *     summary: Obtiene la publicación con el ID requerido
  *     tags: [Communities]
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID de la communidad.
+ *         schema:
+ *           type: string
  *       - in: path
  *         name: post_id
  *         required: true
@@ -995,24 +1001,47 @@ router.post(
  *                   type: string
  *                 content:
  *                   type: string
- *                 user_id:
- *                   type: integer
  *                 category_id:
  *                   type: integer
  *                 createdAt:
  *                   type: string
  *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                    id:
+ *                      type: integer
+ *                    username:
+ *                      type: string
+ *                    picture:
+ *                      type: string
+ *                    userCommunities:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        properties:
+ *                          role_id:
+ *                            type: integer
+ *                          role:
+ *                            type: object
+ *                            properties:
+ *                              name:
+ *                                type: string
  *             example:
  *                 id: 1
  *                 title: "Tipos de suculentas"
  *                 content: "<div>lorem ipsum</div>"
- *                 user_id: 1
  *                 category_id: 1
  *                 createdAt: "2023-12-05 22:22:11"
- *                 updatedAt: "2023-12-05 22:22:11"
+ *                 user: 
+ *                   id: 2
+ *                   username: "JohnDoe"
+ *                   picture: "/path/to/profile/picture.jpg"
+ *                   userCommunities:
+ *                     - role_id: 1
+ *                       role:
+ *                         name: "community_founder"
+
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -1027,7 +1056,7 @@ router.post(
  */
 
 router.get(
-  "/communities/posts/:post_id",
+  "/communities/:community_id/posts/:post_id",
   authenticateJWT,
   communitiesController.getPost
 );
@@ -1253,6 +1282,9 @@ router.post(
  *                       user:
  *                         type: object
  *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             description: Id del usuario que escribnio el comentario
  *                           username:
  *                             type: string
  *                             description: Nombre de usuario del autor del comentario
@@ -1294,6 +1326,7 @@ router.post(
  *                       "content": "<div>Test</div>",
  *                       "createdAt": "2023-12-14T15:51:54.000Z",
  *                       "user": {
+ *                         "id": 2,
  *                         "username": "FrancoMuzzio",
  *                         "picture": "/uploads/users/1/pp_1702335743611.jpg",
  *                         "userCommunities": [
@@ -1317,6 +1350,7 @@ router.post(
  *                       "content": "<div>Test</div>",
  *                       "createdAt": "2023-12-14T15:50:58.000Z",
  *                       "user": {
+ *                         "id": 2,
  *                         "username": "FrancoMuzzio",
  *                         "picture": "/uploads/users/1/pp_1702335743611.jpg",
  *                         "userCommunities": [
@@ -1430,5 +1464,58 @@ router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT
  */
 
 router.post("/communities/posts/comments/react", authenticateJWT, communitiesController.reactComment);
+
+/**
+ * @swagger
+ * /communities/posts/comments/{comment_id}:
+ *   delete:
+ *     summary: Elimina un comentario específico
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: comment_id
+ *         required: true
+ *         description: ID del comentario a eliminar.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comentario eliminado exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Comment deleted successfully"
+ *       404:
+ *         description: Comentario no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Comment not found"
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error deleting comment"
+ */
+
+router.delete("/communities/posts/comments/:comment_id", authenticateJWT, communitiesController.deleteComment);
 
 module.exports = router;
