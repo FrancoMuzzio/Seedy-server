@@ -165,7 +165,6 @@ exports.giveUserCommunityRole = async (req, res) => {
     }
 
     const role_id = role.id;
-    // El resto del código sigue igual...
     const existingEntry = await UserCommunity.findOne({
       where: {
         user_id,
@@ -868,5 +867,23 @@ exports.deleteComment = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: "Error deleting comment" });
+  }
+};
+
+exports.deleteUserFromCommunity = async (req, res) => {
+  try {
+    const { community_id } = req.params;
+    const user_id = (req.body.user_id) ? req.body.user_id : req.user.id
+
+    const user_community = await UserCommunity.findOne({ where: { community_id, user_id } });
+    if (!user_community) {
+      return res.status(404).send({ message: "User not found in community" });
+    } else {
+      await user_community.destroy();
+      res.status(200).send({ message: "User deleted from community successfully" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Error deleting user from community" });
   }
 };
