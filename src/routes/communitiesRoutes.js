@@ -299,6 +299,59 @@ router.post(
 
 /**
  * @swagger
+ * /community/{community_id}/user:
+ *   delete:
+ *     summary: Elimina un usuario de una comunidad
+ *     tags: [Communities]
+ *     description: Este endpoint elimina un usuario de una comunidad específica. Puede eliminar un usuario específico o al usuario que realiza la solicitud.
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: El ID de la comunidad
+ *       - in: body
+ *         name: user_id
+ *         required: false
+ *         description: id de usuario para eliminar de la comunidad, de no existir se eliminara uno mismo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             user_id:
+ *               type: integer
+ *               description: El ID del usuario a eliminar. Si no se proporciona, se utilizará el ID del usuario que hace la solicitud.
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado de la comunidad exitosamente
+ *         content:
+ *           application/json:
+ *             examples:
+ *               exitoso:
+ *                 value: { "message": "User deleted from community successfully" }
+ *       404:
+ *         description: Usuario no encontrado en la comunidad
+ *         content:
+ *           application/json:
+ *             examples:
+ *               noEncontrado:
+ *                 value: { "message": "User not found in community" }
+ *       500:
+ *         description: Error al eliminar el usuario de la comunidad
+ *         content:
+ *           application/json:
+ *             examples:
+ *               error:
+ *                 value: { "message": "Error deleting user from community" }
+ */
+router.delete(
+  "/communities/:community_id/user",
+  authenticateJWT,
+  communitiesController.deleteUserFromCommunity
+);
+
+/**
+ * @swagger
  * /communities/{community_id}/user/{user_id}/role:
  *   get:
  *     summary: Devuelve el rol de un usuario en una determinada comunidad.
