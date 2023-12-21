@@ -535,7 +535,11 @@ router.post(
  *               message: "Error editing category"
  */
 
-router.put("/communities/category/:category_id/edit", authenticateJWT, communitiesController.editCategory);
+router.put(
+  "/communities/category/:category_id/edit",
+  authenticateJWT,
+  communitiesController.editCategory
+);
 
 /**
  * @swagger
@@ -588,7 +592,11 @@ router.put("/communities/category/:category_id/edit", authenticateJWT, communiti
  *               message: "Error deleting category"
  */
 
-router.delete("/communities/category/:category_id", authenticateJWT, communitiesController.deleteCategory);
+router.delete(
+  "/communities/category/:category_id",
+  authenticateJWT,
+  communitiesController.deleteCategory
+);
 
 /**
  * @swagger
@@ -639,7 +647,11 @@ router.delete("/communities/category/:category_id", authenticateJWT, communities
  *               message: "Error editing category"
  */
 
-router.put("/communities/category/posts/migrate", authenticateJWT, communitiesController.migratePosts);
+router.put(
+  "/communities/category/posts/migrate",
+  authenticateJWT,
+  communitiesController.migratePosts
+);
 
 /**
  * @swagger
@@ -937,7 +949,7 @@ router.post(
  *                   category:
  *                     name: "general"
  *                   createdAt: "2023-04-12T15:00:00Z"
- *                   user:  
+ *                   user:
  *                     id: 2
  *                     username: "JohnDoe"
  *                     email: "johndoe@example.com"
@@ -992,7 +1004,7 @@ router.post(
  *                   type: string
  *             examples:
  *               responseExample:
- *                 value: 
+ *                 value:
  *                   content: "<div>Contenido del post</div>"
  *       404:
  *         description: Post no encontrado.
@@ -1005,7 +1017,7 @@ router.post(
  *                   type: string
  *             examples:
  *               responseExample:
- *                 value: 
+ *                 value:
  *                   message: "Post not found."
  *       500:
  *         description: Error interno del servidor.
@@ -1018,11 +1030,14 @@ router.post(
  *                   type: string
  *             examples:
  *               responseExample:
- *                 value: 
+ *                 value:
  *                   message: "Internal Server Error"
  */
 
-router.get('/communities/posts/:post_id/content', communitiesController.getPostContentById);
+router.get(
+  "/communities/posts/:post_id/content",
+  communitiesController.getPostContentById
+);
 
 /**
  * @swagger
@@ -1085,6 +1100,17 @@ router.get('/communities/posts/:post_id/content', communitiesController.getPostC
  *                            properties:
  *                              name:
  *                                type: string
+ *                 commentReactions:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       user_id:
+ *                         type: integer
+ *                         description: id del usuario que reacciono al comentario
+ *                       type:
+ *                         type: string
+ *                         description: tipo de reacción
  *             example:
  *                 id: 1
  *                 title: "Tipos de suculentas"
@@ -1099,7 +1125,9 @@ router.get('/communities/posts/:post_id/content', communitiesController.getPostC
  *                     - role_id: 1
  *                       role:
  *                         name: "community_founder"
-
+ *                 commentReactions: 
+ *                   - user_id: 2
+ *                     type: "like"
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -1255,8 +1283,11 @@ router.post(
  *               message: "Error editing post"
  */
 
-router.put("/communities/posts/:post_id/edit", authenticateJWT, communitiesController.editPost);
-
+router.put(
+  "/communities/posts/:post_id/edit",
+  authenticateJWT,
+  communitiesController.editPost
+);
 
 /**
  * @swagger
@@ -1309,7 +1340,85 @@ router.put("/communities/posts/:post_id/edit", authenticateJWT, communitiesContr
  *               message: "Error deleting comment"
  */
 
-router.delete("/communities/posts/:post_id", authenticateJWT, communitiesController.deletePost);
+router.delete(
+  "/communities/posts/:post_id",
+  authenticateJWT,
+  communitiesController.deletePost
+);
+
+/**
+ * @swagger
+ * /communities/posts/{post_id}/react:
+ *   post:
+ *     summary: Reaccionar a una publicación.
+ *     description: Permite a un usuario darle me gusta o no a una publicación. Si el mismo usuario vuelve a enviar el mismo tipo de reacción, se eliminará la reacción.
+ *     tags: [Communities]
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         description: ID de la publicación a reaccionar.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 description: The type of reaction ("like" or "dislike").
+ *                 example: "like"
+ *     responses:
+ *       200:
+ *         description: Reacción actualizada o eliminada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reaction removed"
+ *       201:
+ *         description: La reacción se creó con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reaction created"
+ *       400:
+ *         description: Parámetros faltantes o no válidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Parameters missing: type or post_id not present"
+ *       500:
+ *         description: Error Interno del Servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+
+router.post(
+  "/communities/posts/:post_id/react",
+  authenticateJWT,
+  communitiesController.reactPost
+);
 
 /**
  * @swagger
@@ -1583,16 +1692,26 @@ router.post(
  *               message: "Internal Server Error"
  */
 
-
-router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT, communitiesController.getComments);
+router.get(
+  "/communities/:community_id/posts/:post_id/comments",
+  authenticateJWT,
+  communitiesController.getComments
+);
 
 /**
  * @swagger
- * /communities/posts/comments/react:
+ * /communities/posts/comments/{comment_id}/react:
  *   post:
  *     summary: Reaccionar a un comentario.
  *     description: Permite a un usuario darle me gusta o no a un comentario. Si el mismo usuario vuelve a enviar el mismo tipo de reacción, se eliminará la reacción.
  *     tags: [Communities]
+ *     parameters:
+ *       - in: path
+ *         name: comment_id
+ *         required: true
+ *         description: ID del comentario a reaccionar.
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -1600,10 +1719,6 @@ router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT
  *           schema:
  *             type: object
  *             properties:
- *               comment_id:
- *                 type: integer
- *                 description: The ID of the comment to react to.
- *                 example: 1
  *               type:
  *                 type: string
  *                 description: The type of reaction ("like" or "dislike").
@@ -1651,7 +1766,11 @@ router.get("/communities/:community_id/posts/:post_id/comments", authenticateJWT
  *                   example: "Internal Server Error"
  */
 
-router.post("/communities/posts/comments/react", authenticateJWT, communitiesController.reactComment);
+router.post(
+  "/communities/posts/comments/:comment_id/react",
+  authenticateJWT,
+  communitiesController.reactComment
+);
 
 /**
  * @swagger
@@ -1704,6 +1823,10 @@ router.post("/communities/posts/comments/react", authenticateJWT, communitiesCon
  *               message: "Error deleting comment"
  */
 
-router.delete("/communities/posts/comments/:comment_id", authenticateJWT, communitiesController.deleteComment);
+router.delete(
+  "/communities/posts/comments/:comment_id",
+  authenticateJWT,
+  communitiesController.deleteComment
+);
 
 module.exports = router;

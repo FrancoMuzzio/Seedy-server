@@ -8,6 +8,7 @@ const {
   Op,
   Comment,
   CommentReaction,
+  PostReaction,
   Sequelize,
 } = require("../models");
 
@@ -607,6 +608,11 @@ exports.getPost = async (req, res) => {
             },
           ],
         },
+        {
+          model: PostReaction,
+          as: "postReactions",
+          attributes: ["user_id", "reaction_type"],
+        },
       ],
     });
 
@@ -770,7 +776,9 @@ exports.getComments = async (req, res) => {
 
 exports.reactComment = async (req, res) => {
   try {
-    const { type, comment_id } = req.body;
+    console.log("REACT Comment");
+    const { type } = req.body;
+    const { comment_id } = req.params;
     const user_id = req.user.id;
 
     if (!type || !comment_id) {
@@ -801,6 +809,46 @@ exports.reactComment = async (req, res) => {
     }
   } catch (error) {
     console.error("Error reacting to comment:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+exports.reactPost = async (req, res) => {
+  try {
+    console.log("REACT POST");
+    const { type } = req.body;
+    const { post_id } = req.params;
+    const user_id = req.user.id;
+
+    if (!type || !post_id) {
+      return res.status(400).json({
+        message: "Parameters missing: type or post_id not present",
+      });
+    }
+
+    const existingReaction = await PostReaction.findOne({
+      where: { post_id: post_id, user_id: user_id },
+    });
+
+    if (existingReaction) {
+      if (existingReaction.reaction_type === type) {
+        await existingReaction.destroy();
+        res.status(200).json({ message: "Reaction removed" });
+      } else {
+        await existingReaction.update({ reaction_type: type });
+        res.status(200).json({ message: "Reaction updated" });
+      }
+    } else {
+      await PostReaction.create({
+        post_id: post_id,
+        user_id: user_id,
+        reaction_type: type,
+      });
+      res.status(201).json({ message: "Reaction created" });
+    }
+  } catch (error) {
+    console.error("Error reacting to post:", error);
     res.status(500).json({
       message: "Internal Server Error",
     });
