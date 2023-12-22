@@ -94,7 +94,8 @@ exports.forgotPassword = async (req, res) => {
   user.resetPasswordToken = crypto.randomBytes(20).toString("hex");
   user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
   await user.save();
-
+  console.log("APIKEY")
+  console.log(process.env.SENDGRID_API_KEY)
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     to: req.body.email,
