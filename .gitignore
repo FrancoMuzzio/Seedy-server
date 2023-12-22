@@ -8,3 +8,6 @@ uploads/plants/*
 config/config.js
 
 node_modules/
+sendgrid.env
+
+.env
