@@ -3,21 +3,23 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const { User } = require("../models");
-const { transporter, supportEmail } = require("./emailController");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
+const sgMail = require("@sendgrid/mail");
 
 exports.register = async (req, res) => {
   const { username, email, picture, password } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).send("All fields are required: username, email, picture, password");
+    return res
+      .status(400)
+      .send("All fields are required: username, email, picture, password");
   }
 
   try {
-    const existingUser = await User.findOne({ 
-      where: { 
-        [Op.or]: [{ username }, { email }] 
-      } 
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ username }, { email }],
+      },
     });
 
     if (existingUser) {
@@ -28,7 +30,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       username,
       email,
-      picture, 
+      picture,
       password: hashedPassword,
     });
 
@@ -47,8 +49,8 @@ exports.login = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        picture: user.picture
-      }
+        picture: user.picture,
+      },
     };
     res.send(response);
   } else {
@@ -89,44 +91,50 @@ exports.forgotPassword = async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: "Usuario no encontrado" });
   }
-
-  // Generar token
   user.resetPasswordToken = crypto.randomBytes(20).toString("hex");
   user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
   await user.save();
 
-  const mailOptions = {
-    from: supportEmail,
-    to: user.email,
-    subject: "Restablecimiento de Contraseña",
-    text: `Hola, 
-           Recibimos una solicitud para restablecer tu contraseña. 
-           Por favor, usa el siguiente token para restablecerla: ${user.resetPasswordToken}
-           Si no hiciste esta solicitud, ignora este correo.`,
-    html: `<b>Hola,</b> 
-           <p>Recibimos una solicitud para restablecer tu contraseña.</p>
-           <p>Por favor, usa el siguiente token para restablecerla: <strong>${user.resetPasswordToken}</strong></p>
-           <p>Si no hiciste esta solicitud, ignora este correo.</p>`,
-  };
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: req.body.email,
+    from: "support@seedy.com.ar",
+    subject: "🌱 Reset Your Password at Seedy",
+    text: `Hello Plant Lover! 🌿
+  
+  We've received a request to reset your password for Seedy. We're here to help you quickly get back to our green community.
+  
+  Password Reset Token: ${user.resetPasswordToken}
+  
+  Please enter this token in the app to set your new password. This token is valid for 1 hour.
+  
+  If you did not request a password reset, you can safely ignore this email. Your account is secure.
+  
+  Thank you for being a part of our Seedy community!
+  The Seedy Team 🌼`,
 
-  // Enviar correo
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error al enviar el correo:", error);
-      return res
-        .status(500)
-        .send({ message: "Error sending reset email." });
-    } else {
-      console.info("Correo enviado:", info.response);
+    html: `<div style="font-family: Arial, sans-serif; color: #333;">
+      <h2 style="color: #2E7D32;">Hello Plant Lover! 🌿</h2>
+      <p>We've received a request to reset your password for <strong>Seedy</strong>. We're here to help you quickly get back to our green community.</p>
+      <p><b>Password Reset Token:</b> <span style="color: #388E3C;"><strong>${user.resetPasswordToken}</strong></span></p>
+      <p>Please enter this token in the app to set your new password. This token is valid for 1 hour.</p>
+      <p>If you did not request a password reset, you can safely ignore this email. Your account is secure.</p>
+      <p>Thank you for being a part of our <strong>Seedy</strong> community!</p>
+      <p style="margin-top: 30px; color: #4CAF50;"><b>The Seedy Team</b> 🌼</p>
+    </div>`,
+  };
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.info("Correo enviado");
       return res.json({
         message: "Email sent with instructions to reset password",
       });
-    }
-  });
-
-  res.json({
-    message: "Email sent with instructions to reset password",
-  });
+    })
+    .catch((error) => {
+      console.error("Error al enviar el correo:", error);
+      return res.status(500).send({ message: "Error sending reset email." });
+    });
 };
 
 exports.resetPassword = async (req, res) => {
