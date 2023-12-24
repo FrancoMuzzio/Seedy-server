@@ -16,7 +16,6 @@ module.exports = (sequelize) => {
     }
   }, {
     tableName: 'User_Community',
-    // Aquí puedes especificar que user_id y community_id juntos forman una clave primaria
     indexes: [
       {
         unique: true,

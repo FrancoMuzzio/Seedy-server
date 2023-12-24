@@ -1,33 +1,57 @@
-const express = require('express');
-const authRoutes = require('./routes/authRoutes');
-const communitiesRoutes = require('./routes/communitiesRoutes');
-const userRoutes = require('./routes/userRoutes');
-const imageRoutes = require('./routes/imageRoutes');
-const plantRoutes = require('./routes/plantRoutes');
-const sequelize = require('./config/database');
-const bodyParser = require('body-parser');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swaggerConfig');
-
+const express = require("express");
+const { Message } = require("./models");
+const authRoutes = require("./routes/authRoutes");
+const communitiesRoutes = require("./routes/communitiesRoutes");
+const userRoutes = require("./routes/userRoutes");
+const imageRoutes = require("./routes/imageRoutes");
+const plantRoutes = require("./routes/plantRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const sequelize = require("./config/database");
+const bodyParser = require("body-parser");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swaggerConfig");
+const http = require("http");
+const socketIo = require("socket.io");
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
-var cors = require('cors');
+var cors = require("cors");
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Rutas
-app.use('/', authRoutes);
-app.use('/', userRoutes);
-app.use('/', communitiesRoutes);
-app.use('/', imageRoutes);
-app.use('/', plantRoutes);
-app.use('/uploads', express.static('uploads'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/", authRoutes);
+app.use("/", userRoutes);
+app.use("/", communitiesRoutes);
+app.use("/", imageRoutes);
+app.use("/", plantRoutes);
+app.use("/", chatRoutes);
+app.use("/uploads", express.static("uploads"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Sincronización con la base de datos
 sequelize.sync();
 
-app.listen(3000, () => {
-  console.info('Server is running on port 3000');
+io.on("connection", (socket) => {
+  socket.on("disconnect", () => {});
+
+  socket.on("send_message", async (messageData) => {
+    try {
+      await Message.create({
+        text: messageData.text,
+        community_id: messageData.community_id,
+        user_id: messageData.user.id,
+      });
+
+      io.emit("receive_message", messageData);
+    } catch (error) {
+      console.error("Error al guardar el mensaje:", error);
+    }
+  });
+});
+
+server.listen(3000, () => {
+  console.log("Servidor corriendo en el puerto 3000");
 });
