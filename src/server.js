@@ -11,15 +11,22 @@ const bodyParser = require("body-parser");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swaggerConfig");
 const http = require("http");
-const socketIo = require("socket.io");
+const { Server } = require("socket.io");
+const { instrument } = require("@socket.io/admin-ui");
 const app = express();
 const server = http.createServer(app);
 
-const io = socketIo(server, {
+const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
   }
+});
+
+// AdminUI
+instrument(io, {
+  auth: false,
+  mode: "development",
 });
 
 var cors = require("cors");
