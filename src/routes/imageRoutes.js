@@ -75,10 +75,6 @@ router.post(
     if (!req.file) {
       return res.status(400).send("No image uploaded");
     }
-    console.log("Archivo subido con éxito:");
-    console.log("Nombre del archivo:", req.file.originalname);
-    console.log("Ruta del archivo:", req.file.path);
-    console.log("Tamaño del archivo:", req.file.size);
     res.status(200).send({
       imageUrl: `/uploads/${req.params.folderName + (req.params["0"] ? req.params["0"] : "")}/${
         req.file.originalname

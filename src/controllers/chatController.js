@@ -11,7 +11,7 @@ const getChatHistory = async (req, res) => {
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "picture"],
+          attributes: ["id", "username", "picture", "createdAt"],
           include: [
             {
               model: UserCommunity,

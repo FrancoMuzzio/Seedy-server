@@ -40,6 +40,10 @@ const authenticateJWT = require("../middlewares/authMiddleware");
  *                     type: string
  *                     description: El contenido del mensaje.
  *                     example: "Hola, ¿cómo estás?"
+ *                   createdAt:
+ *                     type: string
+ *                     description: El timestamp del mensaje.
+ *                     example: "2023-12-05 22:22:11"
  *                   user_id:
  *                     type: integer
  *                     description: El ID del usuario que envió el mensaje.

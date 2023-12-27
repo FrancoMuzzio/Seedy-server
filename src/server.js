@@ -39,13 +39,18 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", async (messageData) => {
     try {
-      await Message.create({
+      const createdMessage = await Message.create({
         text: messageData.text,
         community_id: messageData.community_id,
         user_id: messageData.user.id,
       });
+      const messageToEmit = {
+        ...messageData,
+        id: createdMessage.id, 
+        createdAt: createdMessage.createdAt, 
+      };
 
-      io.emit("receive_message", messageData);
+      io.emit("receive_message", messageToEmit);
     } catch (error) {
       console.error("Error al guardar el mensaje:", error);
     }
