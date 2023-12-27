@@ -14,7 +14,13 @@ const http = require("http");
 const socketIo = require("socket.io");
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 var cors = require("cors");
 app.use(cors());
@@ -40,8 +46,6 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", async (messageData) => {
     try {
-      console.log("ACA");
-      console.log(messageData);
       const createdMessage = await Message.create({
         text: messageData.text,
         community_id: messageData.community_id,
