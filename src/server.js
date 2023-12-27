@@ -35,6 +35,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 sequelize.sync();
 
 io.on("connection", (socket) => {
+  console.log("Conectado al servidor de Socket.IO");
   socket.on("disconnect", () => {});
 
   socket.on("send_message", async (messageData) => {
