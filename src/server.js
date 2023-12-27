@@ -39,6 +39,8 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", async (messageData) => {
     try {
+      console.log("ACA");
+      console.log(messageData);
       const createdMessage = await Message.create({
         text: messageData.text,
         community_id: messageData.community_id,
