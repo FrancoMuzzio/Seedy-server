@@ -73,7 +73,7 @@ router.post(
   upload.single("image"),
   (req, res) => {
     console.log("ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:");
-    console.log(req);
+    console.log(req.params);
     if (!req.file) {
       return res.status(400).send("No image uploaded");
     }
