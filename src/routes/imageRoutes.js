@@ -80,7 +80,7 @@ router.post(
     console.log("Ruta del archivo:", req.file.path);
     console.log("Tamaño del archivo:", req.file.size);
     res.status(200).send({
-      imageUrl: `/uploads/${req.params.folderName + req.params["0"]}/${
+      imageUrl: `/uploads/${req.params.folderName + (req.params["0"] ? req.params["0"] : "")}/${
         req.file.originalname
       }`,
     });

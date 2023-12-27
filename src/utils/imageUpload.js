@@ -4,11 +4,10 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const folderName = decodeURI(req.params.folderName) || 'default'; // Si folderName es undefined, usará 'default'
+    const folderName = decodeURI(req.params.folderName + (req.params["0"] ? req.params["0"] : "")) || 'default';
 
     const uploadPath = path.join('uploads', folderName);
 
-    // Se asegura de que la carpeta exista o crea una nueva si no existe.
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
