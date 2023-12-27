@@ -17,11 +17,12 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
+  transports: ["websocket"],
   cors: {
-    origin: ["https://admin.socket.io", "https://seedy.com.ar", "https://seedy.com.ar/api"],
+    origin: *,
     methods: ["GET", "POST"],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 // AdminUI
@@ -61,8 +62,8 @@ io.on("connection", (socket) => {
       });
       const messageToEmit = {
         ...messageData,
-        id: createdMessage.id, 
-        createdAt: createdMessage.createdAt, 
+        id: createdMessage.id,
+        createdAt: createdMessage.createdAt,
       };
 
       io.emit("receive_message", messageToEmit);
