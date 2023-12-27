@@ -72,11 +72,10 @@ router.post(
   authenticateJWT,
   upload.single("image"),
   (req, res) => {
+    console.log(req);
     if (!req.file) {
       return res.status(400).send("No image uploaded");
     }
-    console.log(req.params);
-
     res.status(200).send({
       imageUrl: `/uploads/${decodeURI(req.params.folderName)}/${
         req.file.originalname
