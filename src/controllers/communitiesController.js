@@ -775,7 +775,6 @@ exports.getComments = async (req, res) => {
 
 exports.reactComment = async (req, res) => {
   try {
-    console.log("REACT Comment");
     const { type } = req.body;
     const { comment_id } = req.params;
     const user_id = req.user.id;
@@ -815,7 +814,6 @@ exports.reactComment = async (req, res) => {
 };
 exports.reactPost = async (req, res) => {
   try {
-    console.log("REACT POST");
     const { type } = req.body;
     const { post_id } = req.params;
     const user_id = req.user.id;

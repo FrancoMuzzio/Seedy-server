@@ -34,7 +34,7 @@ const getChatHistory = async (req, res) => {
     });
     res.json(messages);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).send("Error processing request.");
   }
 };
