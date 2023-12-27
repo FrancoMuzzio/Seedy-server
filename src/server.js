@@ -18,8 +18,9 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: ["https://admin.socket.io", "https://seedy.com.ar", "https://seedy.com.ar/api"],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
