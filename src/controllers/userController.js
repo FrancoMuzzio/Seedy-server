@@ -3,7 +3,6 @@ const { User } = require("../models");
 exports.edit = async (req, res) => {
     try {
         const { username, email, picture } = req.body;
-        console.log(picture);
         const user = await User.findOne({ where: { id: req.params.user_id } });
         if (!user) {
             return res.status(404).send({ message: "User not found" });
