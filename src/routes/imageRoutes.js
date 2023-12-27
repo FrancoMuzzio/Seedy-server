@@ -68,7 +68,7 @@ const router = express.Router();
  */
 
 router.post(
-  "/image/upload/:folderName",
+  "/image/upload/:folderName*",
   authenticateJWT,
   upload.single("image"),
   (req, res) => {
