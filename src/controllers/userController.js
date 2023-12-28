@@ -1,4 +1,6 @@
 const { User } = require("../models");
+const bcrypt = require("bcrypt");
+
 
 exports.edit = async (req, res) => {
     try {
@@ -20,3 +22,22 @@ exports.edit = async (req, res) => {
         res.status(500).send({ message: "Error editing user" });
     }    
 };
+
+exports.changePassword = async (req, res) => {
+    const user_id = req.user.id;
+
+    const user = await User.findOne({
+      where: {
+        id: user_id,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+  
+    user.password = await bcrypt.hash(req.body.newPassword, 10);
+
+    await user.save();
+  
+    res.json({ message: "Password successfully updated" });
+  };

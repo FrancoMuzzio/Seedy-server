@@ -181,6 +181,61 @@ router.post(
 
 /**
  * @swagger
+ * /communities/{community_id}/edit:
+ *   put:
+ *     summary: Edita una comunidad existente
+ *     tags: [Communities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: community_id
+ *         required: true
+ *         description: ID único de la comunidad a editar.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nuevo nombre de la comunidad.
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripción de la comunidad.
+ *               imageUrl:
+ *                 type: string
+ *                 description: URL de la nueva imagen de la comunidad.
+ *             example:
+ *               name: Comunidad de Jardinería
+ *               description: Una comunidad para entusiastas de la jardinería.
+ *               imageUrl: /uploads/communities/1/cp_1703744895803.jpg
+ *     responses:
+ *       200:
+ *         description: Comunidad editada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Community'
+ *       404:
+ *         description: Comunidad no encontrada.
+ *       500:
+ *         description: Error del servidor.
+ */
+
+router.put(
+  "/communities/:community_id/edit",
+  authenticateJWT,
+  communitiesController.edit
+);
+
+
+/**
+ * @swagger
  * /communities/{community_id}/change-image:
  *   put:
  *     summary: Cambia la imagen de una comunidad
@@ -239,7 +294,7 @@ router.put(
  * @swagger
  * /communities/{community_id}/give-role-to-user:
  *   post:
- *     summary: Asigna un rol a un usuario en la comunidad
+ *     summary: Asigna un rol a un usuario en la comunidad, asigna automáticamente "system_admin" a administradores
  *     tags: [Communities]
  *     security:
  *       - bearerAuth: []
@@ -299,7 +354,7 @@ router.post(
 
 /**
  * @swagger
- * /community/{community_id}/user:
+ * /communities/{community_id}/user:
  *   delete:
  *     summary: Elimina un usuario de una comunidad
  *     tags: [Communities]

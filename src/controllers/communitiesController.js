@@ -29,13 +29,12 @@ exports.list = async (req, res) => {
       ],
     });
 
-    // contar usuarios de cada comunidad
     const communitiesWithUserCount = await Promise.all(
       communities.map(async (community) => {
-        const userCount = await community.countUsers(); // countUsers es un método que Sequelize crea automáticamente
+        const userCount = await community.countUsers();
         return {
-          ...community.get(), // Obtener los datos de la comunidad como un objeto simple
-          userCount, // Añadir la cuenta de usuarios
+          ...community.get(),
+          userCount,
         };
       })
     );
@@ -97,6 +96,28 @@ exports.create = async (req, res) => {
   }
 };
 
+exports.edit = async (req, res) => {
+  try {
+    const { name, description, imageUrl } = req.body;
+    const { community_id } = req.params;
+    const community = await Community.findOne({ where: { id: community_id } });
+
+    if (!community) {
+      return res.status(404).send({ message: "Community not found" });
+    }
+
+    if (name) community.name = name;
+    if (description) community.description = description;
+    if (imageUrl) community.picture = imageUrl;
+    await community.save();
+
+    res.status(200).send(community);
+  } catch (error) {
+    console.error("Error editing community:", error);
+    res.status(500).send({ message: "Error editing community" });
+  }
+};
+
 exports.deleteCommunity = async (req, res) => {
   try {
     const community_id = req.params.community_id;
@@ -147,16 +168,28 @@ exports.deleteCommunity = async (req, res) => {
 
 exports.giveUserCommunityRole = async (req, res) => {
   try {
-    const { user_id, role_name } = req.body;
+    const { user_id } = req.body;
     const { community_id } = req.params;
-    if (!user_id || !role_name) {
-      return res.status(400).json({
-        message: "Parameters missing: user_id, or role_name not present",
-      });
-    }
-    const role = await Role.findOne({
-      where: { name: role_name },
+
+    // Verifica si el usuario es administrador
+    const isAdmin = await User.findOne({
+      where: { id: user_id, isAdmin: true },
     });
+
+    let role;
+
+    // Asigna rol de system_admin si es admin, de lo contrario usa el rol proporcionado
+    if (isAdmin) {
+      role = await Role.findOne({ where: { name: "system_admin" } });
+    } else {
+      const { role_name } = req.body;
+      if (!role_name) {
+        return res.status(400).json({
+          message: "Parameter missing: role_name not present",
+        });
+      }
+      role = await Role.findOne({ where: { name: role_name } });
+    }
 
     if (!role) {
       return res.status(404).json({
@@ -166,26 +199,17 @@ exports.giveUserCommunityRole = async (req, res) => {
 
     const role_id = role.id;
     const existingEntry = await UserCommunity.findOne({
-      where: {
-        user_id,
-        community_id,
-      },
+      where: { user_id, community_id },
     });
 
     if (existingEntry) {
       existingEntry.role_id = role_id;
       await existingEntry.save();
     } else {
-      await UserCommunity.create({
-        user_id,
-        community_id,
-        role_id,
-      });
+      await UserCommunity.create({ user_id, community_id, role_id });
     }
 
-    res.json({
-      message: "Role assigned successfully",
-    });
+    res.json({ message: "Role assigned successfully" });
   } catch (error) {
     console.error("Error assigning role:", error);
     res.status(500).json({
@@ -871,14 +895,18 @@ exports.deleteComment = async (req, res) => {
 exports.deleteUserFromCommunity = async (req, res) => {
   try {
     const { community_id } = req.params;
-    const user_id = (req.body.user_id) ? req.body.user_id : req.user.id
+    const user_id = req.body.user_id ? req.body.user_id : req.user.id;
 
-    const user_community = await UserCommunity.findOne({ where: { community_id, user_id } });
+    const user_community = await UserCommunity.findOne({
+      where: { community_id, user_id },
+    });
     if (!user_community) {
       return res.status(404).send({ message: "User not found in community" });
     } else {
       await user_community.destroy();
-      res.status(200).send({ message: "User deleted from community successfully" });
+      res
+        .status(200)
+        .send({ message: "User deleted from community successfully" });
     }
   } catch (error) {
     console.error(error);

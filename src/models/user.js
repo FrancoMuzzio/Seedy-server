@@ -17,6 +17,11 @@ module.exports = (sequelize) => {
         allowNull: false
       },
     picture: DataTypes.STRING,
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
     resetPasswordToken: DataTypes.STRING,
     resetPasswordExpires: DataTypes.DATE
   });

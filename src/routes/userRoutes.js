@@ -81,4 +81,52 @@ const authenticateJWT = require("../middlewares/authMiddleware");
 
 router.put("/user/:user_id/edit", authenticateJWT, userController.edit);
 
+/**
+ * @swagger
+ * /change-password:
+ *   put:
+ *     summary: Cambia la contraseña de un usuario
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 description: La nueva contraseña del usuario.
+ *             example:
+ *               newPassword: "nuevaContraseña123"
+ *     responses:
+ *       200:
+ *         description: Contraseña actualizada con éxito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Password successfully updated"
+ *       404:
+ *         description: Usuario no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Error del servidor.
+ */
+router.put("/change-password", authenticateJWT, userController.changePassword);
+
 module.exports = router;
