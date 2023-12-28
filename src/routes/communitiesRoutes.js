@@ -179,6 +179,13 @@ router.post(
   communitiesController.create
 );
 
+router.put(
+  "/communities/:community_id/edit",
+  authenticateJWT,
+  communitiesController.edit
+);
+
+
 /**
  * @swagger
  * /communities/{community_id}/change-image:
@@ -239,7 +246,7 @@ router.put(
  * @swagger
  * /communities/{community_id}/give-role-to-user:
  *   post:
- *     summary: Asigna un rol a un usuario en la comunidad
+ *     summary: Asigna un rol a un usuario en la comunidad, asigna automáticamente "system_admin" a administradores
  *     tags: [Communities]
  *     security:
  *       - bearerAuth: []
@@ -299,7 +306,7 @@ router.post(
 
 /**
  * @swagger
- * /community/{community_id}/user:
+ * /communities/{community_id}/user:
  *   delete:
  *     summary: Elimina un usuario de una comunidad
  *     tags: [Communities]
