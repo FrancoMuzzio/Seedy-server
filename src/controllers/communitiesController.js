@@ -29,13 +29,12 @@ exports.list = async (req, res) => {
       ],
     });
 
-    // contar usuarios de cada comunidad
     const communitiesWithUserCount = await Promise.all(
       communities.map(async (community) => {
-        const userCount = await community.countUsers(); // countUsers es un método que Sequelize crea automáticamente
+        const userCount = await community.countUsers();
         return {
-          ...community.get(), // Obtener los datos de la comunidad como un objeto simple
-          userCount, // Añadir la cuenta de usuarios
+          ...community.get(),
+          userCount,
         };
       })
     );
@@ -109,7 +108,7 @@ exports.edit = async (req, res) => {
 
     if (name) community.name = name;
     if (description) community.description = description;
-    if (imageUrl) community.picture = imageUrl; 
+    if (imageUrl) community.picture = imageUrl;
     await community.save();
 
     res.status(200).send(community);
@@ -118,7 +117,6 @@ exports.edit = async (req, res) => {
     res.status(500).send({ message: "Error editing community" });
   }
 };
-
 
 exports.deleteCommunity = async (req, res) => {
   try {
