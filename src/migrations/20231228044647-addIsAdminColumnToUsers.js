@@ -8,7 +8,7 @@ module.exports = {
       allowNull: false,
     });
 
-    await queryInterface.bulkUpdate('Users', { is_admin: false }, {});
+    await queryInterface.bulkUpdate('Users', { isAdmin: false }, {});
   },
 
   down: async (queryInterface, Sequelize) => {
